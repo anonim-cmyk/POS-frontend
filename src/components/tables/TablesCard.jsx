@@ -28,7 +28,7 @@ const TablesCard = ({ id, name, status, initials, seats }) => {
         </h1>
         <p
           className={`${
-            status === "booked"
+            status === "Booked"
               ? "text-green-600 bg-[#2e4a40]"
               : "bg-[#664a04] text-white"
           } px-2 py-1 rounded-lg`}

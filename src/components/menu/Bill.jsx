@@ -70,7 +70,7 @@ const Bill = () => {
     onSuccess: () => {
       dispatch(removeCustomer());
       dispatch(removeAllItems());
-      navigate("/menu");
+      // navigate("/menu", { replace: true });
     },
     onError: (err) => {
       console.error("❌ tableUpdate Error:", err.response?.data || err.message);
