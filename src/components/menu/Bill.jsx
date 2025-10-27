@@ -209,7 +209,11 @@ const Bill = () => {
           Items ({cartData.length})
         </p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          Rp {total.toFixed(2)}
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(total)}
         </h1>
       </div>
 
@@ -217,7 +221,11 @@ const Bill = () => {
       <div className="flex items-center justify-between px-5 mt-2">
         <p className="text-xs text-[#ababab] font-medium mt-2">Tax (5.25%)</p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          Rp {tax.toFixed(2)}
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(tax)}
         </h1>
       </div>
 
@@ -227,7 +235,6 @@ const Bill = () => {
           Total with Tax
         </p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          Rp{" "}
           {new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
