@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { addOrder, updatedTable } from "../../https";
 import { removeCustomer } from "../../redux/slices/customerSlices";
 import { useNavigate } from "react-router-dom";
-import Invoice from "./Invoice"; // pastikan path ini benar
+import Invoice from "../invoice/Invoice";
 
 const Bill = () => {
   const dispatch = useDispatch();
