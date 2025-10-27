@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BottomNav from "../components/shared/BottomNav";
 import BackButton from "../components/shared/BackButton";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getTables } from "../https";
 import TablesCard from "../components/tables/TablesCard";
+import { useNavigate } from "react-router-dom";
+
 const Tables = () => {
   const [status, setStatus] = useState("all");
 

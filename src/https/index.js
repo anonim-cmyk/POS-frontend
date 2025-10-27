@@ -22,7 +22,10 @@ export const updatedTable = ({ tableId, ...tableData }) =>
 
 export const createOrderMidtrans = (data) =>
   api.post("/api/payment/create-order", data);
-
-export const addOrder = (data) => api.post("/api/order", data);
 export const verifyPaymentMidtrans = (data) =>
   api.post("/api/payment/verify-payment", data);
+
+export const addOrder = (data) => api.post("/api/order", data);
+export const getOrders = () => api.get("/api/order");
+export const updateOrderStatus = ({ orderId, orderStatus }) =>
+  api.put(`/api/order/${orderId}`, { orderStatus });

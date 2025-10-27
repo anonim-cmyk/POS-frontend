@@ -1,6 +1,41 @@
-import { orders } from "../../constants";
+import {
+  keepPreviousData,
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { formatDateAndTime } from "../../utils";
+import { enqueueSnackbar } from "notistack";
+import { getOrders, updateOrderStatus } from "../../https";
 
 const RecentOrders = () => {
+  const queryClient = useQueryClient();
+  const orderStatusUpdateMutation = useMutation({
+    mutationFn: ({ orderId, orderStatus }) =>
+      updateOrderStatus({ orderId, orderStatus }),
+    onSuccess: (data) => {
+      enqueueSnackbar("Order status updated successfully", {
+        variant: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+  });
+  const { data: resData, isError } = useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      return await getOrders();
+    },
+    placeholderData: keepPreviousData,
+  });
+
+  if (isError) {
+    enqueueSnackbar("Something went wrong!", { variant: "error" });
+  }
+
+  const handleStatusChange = ({ orderId, orderStatus }) => {
+    orderStatusUpdateMutation.mutate({ orderId, orderStatus });
+  };
   return (
     <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
       <h2 className="text-[#f5f5f5] text-xl font-semibold mb-4">
@@ -21,13 +56,15 @@ const RecentOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, index) => (
+            {resData?.data.data.map((order, index) => (
               <tr
                 key={index}
                 className="border-b border-gray-600 hover:bg-[#333]"
               >
-                <td className="p-4">#{order.id}</td>
-                <td className="p-4">{order.customer}</td>
+                <td className="p-4">
+                  #{Math.floor(new Date(order.orderDate).getTime())}
+                </td>
+                <td className="p-4">{order.customerDetails.name}</td>
                 <td className="p-4">
                   <select
                     className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
@@ -51,11 +88,17 @@ const RecentOrders = () => {
                     </option>
                   </select>
                 </td>
-                <td className="p-4">{order.dateTime}</td>
-                <td className="p-4">{order.items} Items</td>
-                <td className="p-4">Table - {order.items}</td>
-                <td className="p-4">₹{order.total.toFixed(2)}</td>
-                {/* <td className="p-4">{order}</td> */}
+                <td className="p-4">{formatDateAndTime(order.orderDate)}</td>
+                <td className="p-4">{order.items.length} Items</td>
+                <td className="p-4">Table - {order.table.tableNo}</td>
+                <td className="p-4">
+                  {new Intl.NumberFormat("id-ID", {
+                    style: "currency",
+                    currency: "IDR",
+                    minimumFractionDigits: 0,
+                  }).format(order.bills.totalWithTax)}
+                </td>
+                <td className="p-4">{order.paymentMethod}</td>
               </tr>
             ))}
           </tbody>
