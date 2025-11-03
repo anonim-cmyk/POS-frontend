@@ -107,7 +107,11 @@ const Bill = () => {
         tax,
         totalWithTax: totalPriceWithTax,
       },
-      items: cartData,
+      items: cartData.map((i) => ({
+        dishId: i._id,
+        quantity: i.quantity,
+        price: i.price,
+      })),
       table: customerData.table.tableId,
       paymentMethod,
     };
