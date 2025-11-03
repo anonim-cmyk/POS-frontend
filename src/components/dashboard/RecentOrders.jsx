@@ -1,6 +1,5 @@
 import {
   keepPreviousData,
-  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
@@ -11,21 +10,27 @@ import { getOrders, updateOrderStatus } from "../../https";
 
 const RecentOrders = () => {
   const queryClient = useQueryClient();
+
   const orderStatusUpdateMutation = useMutation({
-    mutationFn: ({ orderId, orderStatus }) =>
-      updateOrderStatus({ orderId, orderStatus }),
-    onSuccess: (data) => {
+    mutationFn: async ({ orderId, orderStatus, tableId }) => {
+      await updateOrderStatus({ orderId, orderStatus });
+
+      // ✅ hanya ubah status meja jika order sudah selesai
+      if (orderStatus === "Completed" && tableId) {
+        await updateTableStatus(tableId, "available");
+      }
+    },
+    onSuccess: () => {
       enqueueSnackbar("Order status updated successfully", {
         variant: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });
+
   const { data: resData, isError } = useQuery({
     queryKey: ["orders"],
-    queryFn: async () => {
-      return await getOrders();
-    },
+    queryFn: async () => getOrders(),
     placeholderData: keepPreviousData,
   });
 
@@ -33,9 +38,12 @@ const RecentOrders = () => {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
 
-  const handleStatusChange = ({ orderId, orderStatus }) => {
-    orderStatusUpdateMutation.mutate({ orderId, orderStatus });
+  const handleStatusChange = ({ orderId, orderStatus, tableId }) => {
+    orderStatusUpdateMutation.mutate({ orderId, orderStatus, tableId });
   };
+
+  const orders = resData?.data?.data || [];
+
   return (
     <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
       <h2 className="text-[#f5f5f5] text-xl font-semibold mb-4">
@@ -56,51 +64,68 @@ const RecentOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {resData?.data.data.map((order, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-600 hover:bg-[#333]"
-              >
-                <td className="p-4">
-                  #{Math.floor(new Date(order.orderDate).getTime())}
+            {orders.length > 0 ? (
+              orders.map((order, index) => (
+                <tr
+                  key={index}
+                  className="border-b border-gray-600 hover:bg-[#333]"
+                >
+                  <td className="p-4">
+                    #{Math.floor(new Date(order.orderDate).getTime())}
+                  </td>
+                  <td className="p-4">{order.customerDetails.name}</td>
+                  <td className="p-4">
+                    <select
+                      className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
+                        order.orderStatus === "Completed"
+                          ? "text-blue-400"
+                          : order.orderStatus === "Ready"
+                          ? "text-green-500"
+                          : "text-yellow-500"
+                      }`}
+                      value={order.orderStatus}
+                      onChange={(e) =>
+                        handleStatusChange({
+                          orderId: order._id,
+                          orderStatus: e.target.value,
+                          tableId: order.table._id,
+                        })
+                      }
+                    >
+                      <option className="text-yellow-500" value="In Progress">
+                        In Progress
+                      </option>
+                      <option className="text-green-500" value="Ready">
+                        Ready
+                      </option>
+                      <option className="text-blue-400" value="Completed">
+                        Completed
+                      </option>
+                    </select>
+                  </td>
+                  <td className="p-4">{formatDateAndTime(order.orderDate)}</td>
+                  <td className="p-4">{order.items.length} Items</td>
+                  <td className="p-4">Table - {order.table.tableNo}</td>
+                  <td className="p-4">
+                    {new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0,
+                    }).format(order.bills.totalWithTax)}
+                  </td>
+                  <td className="p-4">{order.paymentMethod}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="8"
+                  className="text-center text-white py-4 font-semibold"
+                >
+                  No Orders
                 </td>
-                <td className="p-4">{order.customerDetails.name}</td>
-                <td className="p-4">
-                  <select
-                    className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none ${
-                      order.orderStatus === "Ready"
-                        ? "text-green-500"
-                        : "text-yellow-500"
-                    }`}
-                    value={order.orderStatus}
-                    onChange={(e) =>
-                      handleStatusChange({
-                        orderId: order._id,
-                        orderStatus: e.target.value,
-                      })
-                    }
-                  >
-                    <option className="text-yellow-500" value="In Progress">
-                      In Progress
-                    </option>
-                    <option className="text-green-500" value="Ready">
-                      Ready
-                    </option>
-                  </select>
-                </td>
-                <td className="p-4">{formatDateAndTime(order.orderDate)}</td>
-                <td className="p-4">{order.items.length} Items</td>
-                <td className="p-4">Table - {order.table.tableNo}</td>
-                <td className="p-4">
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0,
-                  }).format(order.bills.totalWithTax)}
-                </td>
-                <td className="p-4">{order.paymentMethod}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

@@ -43,7 +43,9 @@ const RecentOrders = () => {
               <OrderList key={order._id} order={order} />
             ))
           ) : (
-            <p className="col-span-3 text-gray-500">No order available</p>
+            <p className="col-span-3 text-gray-500 flex items-center justify-center h-full">
+              No order available
+            </p>
           )}
         </div>
       </div>

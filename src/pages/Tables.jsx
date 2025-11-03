@@ -5,6 +5,8 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getTables } from "../https";
 import TablesCard from "../components/tables/TablesCard";
 import { useNavigate } from "react-router-dom";
+import { useTables } from "../hooks/useTables";
+import FullScreenLoader from "../components/shared/FullScreenLoader";
 
 const Tables = () => {
   const [status, setStatus] = useState("all");
@@ -13,19 +15,9 @@ const Tables = () => {
   //   document.title = "POS | Tables";
   // }, []);
 
-  const { data: resData, isError } = useQuery({
-    queryKey: ["tables"],
-    queryFn: async () => {
-      return await getTables();
-    },
-    placeholderData: keepPreviousData,
-  });
+  const { tables, isLoading } = useTables();
 
-  if (isError) {
-    enqueueSnackbar("Something went wrong!", { variant: "error" });
-  }
-
-  console.log(resData);
+  if (isLoading) return <FullScreenLoader />;
 
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
@@ -57,14 +49,14 @@ const Tables = () => {
       </div>
 
       <div className="grid grid-cols-4 gap-3 px-16 py-4 pb-24 h-[450px] overflow-y-scroll scrollbar-hide">
-        {resData?.data.data.map((table) => {
+        {tables.map((table) => {
           return (
             <TablesCard
               key={table._id}
               id={table._id}
               name={table.tableNo}
               status={table.status}
-              initials={table?.currentOrder?.customerDetails.name}
+              initials={table?.currentOrder?.customerDetails?.name}
               seats={table.seats}
             />
           );

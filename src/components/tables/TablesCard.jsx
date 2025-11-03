@@ -39,9 +39,13 @@ const TablesCard = ({ id, name, status, initials, seats }) => {
       <div className="flex items-center justify-center mt-5 mb-8">
         <h1
           className={`text-white rounded-full p-5 text-xl`}
-          style={{ backgroundColor: initials ? getBgColor() : "#1f1f1f" }}
+          style={{
+            backgroundColor:
+              status === "Available" ? "transparent" : getBgColor(), // 🟢 ubah di sini
+            border: status === "Available" ? "1px dashed #444" : "none", // opsional, biar terlihat tetap rapi
+          }}
         >
-          {getAvatarName(initials) || "N/A"}
+          {status === "Available" ? "N/A" : getAvatarName(initials)}
         </h1>
       </div>
       <p className="text-[#ababab] text-xs">
