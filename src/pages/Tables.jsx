@@ -6,6 +6,7 @@ import { getTables } from "../https";
 import TablesCard from "../components/tables/TablesCard";
 import { useNavigate } from "react-router-dom";
 import { useTables } from "../hooks/useTables";
+import FullScreenLoader from "../components/shared/FullScreenLoader";
 const Tables = () => {
   const navigate = useNavigate();
   useEffect(() => {
