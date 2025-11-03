@@ -6,19 +6,28 @@ import { getTables } from "../https";
 import TablesCard from "../components/tables/TablesCard";
 import { useNavigate } from "react-router-dom";
 import { useTables } from "../hooks/useTables";
-import FullScreenLoader from "../components/shared/FullScreenLoader";
-
 const Tables = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.has("order_id") ||
+      params.has("status_code") ||
+      params.has("transaction_status")
+    ) {
+      console.log("🧹 Cleaning up Midtrans redirect URL...");
+      navigate("/tables", { replace: true });
+    }
+  }, [navigate]);
+
   const [status, setStatus] = useState("all");
+  const { tables, isLoading } = useTables();
 
   // useEffect(() => {
   //   document.title = "POS | Tables";
   // }, []);
 
-  const { tables, isLoading } = useTables();
-
   if (isLoading) return <FullScreenLoader />;
-
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
       <div className="flex items-center justify-between px-10 py-4">
@@ -56,7 +65,7 @@ const Tables = () => {
               id={table._id}
               name={table.tableNo}
               status={table.status}
-              initials={table?.currentOrder?.customerDetails?.name}
+              initials={table?.currentOrder?.customerDetails.name}
               seats={table.seats}
             />
           );
