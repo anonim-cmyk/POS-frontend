@@ -23,28 +23,32 @@ const MenuContainer = () => {
     queryFn: getDishes,
   });
 
-  console.log("CATEGORY RAW =>", categoryData);
-  console.log("DISHES RAW =>", dishesData);
-
-  // ✅ Parse data (backend kadang bungkus data)
+  // ✅ Parse category safely
   const categories = Array.isArray(categoryData?.data?.data)
     ? categoryData.data.data
+    : Array.isArray(categoryData?.data)
+    ? categoryData.data
     : [];
 
+  // ✅ Parse dishes safely
   const dishes = Array.isArray(dishesData?.data?.data)
     ? dishesData.data.data
+    : Array.isArray(dishesData?.data)
+    ? dishesData.data
     : [];
 
-  // ✅ pairing dish ke kategori via category._id
+  // ✅ Merge category + dishes
   const menus = categories.map((cat) => ({
     ...cat,
     items: dishes.filter((dish) => dish?.category?._id === cat._id),
   }));
-  // ✅ Pilih kategori otomatis
+
+  // ✅ Auto select first category
   useEffect(() => {
     if (menus.length && !selected) setSelected(menus[0]);
   }, [menus]);
 
+  // Quantity Logic
   const increment = (id) => {
     setItemId(id);
     if (itemCount < 4) setItemCount((prev) => prev + 1);
@@ -72,13 +76,24 @@ const MenuContainer = () => {
     setItemId(null);
   };
 
+  // ✅ Skeleton Loading
   if (catLoad || dishLoad)
-    return <p className="text-white p-6">Loading menu...</p>;
+    return (
+      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-full">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="bg-[#2a2a2a] animate-pulse h-[100px] rounded-lg"
+          />
+        ))}
+      </div>
+    );
+
   if (!menus.length) return <p className="text-white p-6">No menu data</p>;
 
   return (
     <>
-      {/* Category grid */}
+      {/* Category Grid */}
       <div className="grid grid-cols-4 gap-4 px-10 py-4 w-full">
         {menus.map((menu) => (
           <div
@@ -108,7 +123,7 @@ const MenuContainer = () => {
 
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
-      {/* Items grid */}
+      {/* Items Grid */}
       <div className="grid grid-cols-4 gap-4 px-10 py-4 w-full">
         {selected?.items?.map((item) => (
           <div

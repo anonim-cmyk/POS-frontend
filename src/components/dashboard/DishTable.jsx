@@ -3,30 +3,10 @@ import { getDishes, deleteDish } from "../../https";
 import { BiEdit, BiTrash } from "react-icons/bi";
 import { enqueueSnackbar } from "notistack";
 import FullScreenLoader from "../shared/FullScreenLoader";
+import { useDishes } from "../../hooks/useDishes";
 
 const DishTable = ({ onAdd, onEdit }) => {
-  const queryClient = useQueryClient();
-
-  // Fetch dishes
-  const { data: dishes = [], isLoading } = useQuery({
-    queryKey: ["dishes"],
-    queryFn: async () => {
-      const res = await getDishes();
-      return res.data?.data || [];
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: (id) => deleteDish(id),
-    onSuccess: () => {
-      enqueueSnackbar("Dish deleted successfully", { variant: "success" });
-      queryClient.invalidateQueries(["dishes"]);
-    },
-    onError: () => {
-      enqueueSnackbar("Failed to delete dish", { variant: "error" });
-    },
-  });
+  const { dishes, isLoading, deleteDish } = useDishes();
 
   if (isLoading) return <FullScreenLoader />;
 
@@ -91,7 +71,7 @@ const DishTable = ({ onAdd, onEdit }) => {
                     className="bg-red-600 px-2 py-1 rounded hover:bg-red-700"
                     onClick={() => {
                       if (window.confirm(`Delete "${dish.name}"?`)) {
-                        deleteMutation.mutate(dish._id);
+                        deleteDish(dish._id);
                       }
                     }}
                   >

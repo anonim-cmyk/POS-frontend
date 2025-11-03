@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { IoMdClose } from "react-icons/io";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { IoMdClose } from "react-icons/io";
 import { addDish, updateDish, getCategories } from "../../https";
 
 const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
+  const queryClient = useQueryClient();
+
   const [dishData, setDishData] = useState({
     name: "",
     price: "",
@@ -14,22 +17,18 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  const queryClient = useQueryClient();
-
   // Fetch categories
-  const { data: categories } = useQuery({
+  const { data: categoriesRaw, isLoading: catLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
       const res = await getCategories();
-      return Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.data)
-        ? res.data.data
-        : [];
+      return res.data?.data || res.data || [];
     },
   });
 
-  // Prefill jika editing
+  const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];
+
+  // Prefill data jika editing
   useEffect(() => {
     if (editingDish) {
       setDishData({
@@ -42,15 +41,13 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
     }
   }, [editingDish]);
 
-  // Mutation Add/Update
+  // Mutation Add/Update Dish
   const mutation = useMutation({
-    mutationFn: async (formData) => {
+    mutationFn: async (payload) => {
       if (editingDish?._id) {
-        // Update Dish
-        return updateDish({ dishId: editingDish._id, ...formData });
+        return updateDish({ dishId: editingDish._id, ...payload });
       }
-      // Add Dish
-      return addDish(formData);
+      return addDish(payload);
     },
     onSuccess: () => {
       enqueueSnackbar(
@@ -87,10 +84,9 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
     }
 
     try {
-      let imageUrl = preview; // default ke existing
+      let imageUrl = preview;
 
       if (imageFile) {
-        // Upload ke Cloudinary
         const formDataCloud = new FormData();
         formDataCloud.append("file", imageFile);
         formDataCloud.append("upload_preset", "dishes");
@@ -103,7 +99,6 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
         imageUrl = data.secure_url;
       }
 
-      // Pastikan category hanya ID string
       const payload = {
         name: dishData.name,
         price: Number(dishData.price),
@@ -115,39 +110,50 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
         imageUrl,
       };
 
-      mutation.mutate(payload, {
-        onSuccess: () => {
-          console.log("Dish saved", payload);
-        },
-      });
+      mutation.mutate(payload);
     } catch (err) {
       enqueueSnackbar("Image upload failed", { variant: "error" });
       console.error(err);
     }
   };
 
+  const handleClose = () => {
+    setIsDishesModalOpen(false);
+    setEditingDish(null);
+    setDishData({ name: "", price: "", category: "", stock: 0 });
+    setImageFile(null);
+    setPreview(null);
+  };
+
+  if (catLoading)
+    return <p className="text-white p-6">Loading categories...</p>;
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-xl p-6 w-[400px] relative max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={() => {
-            setIsDishesModalOpen(false);
-            setEditingDish(null);
-          }}
-          className="absolute top-3 right-3 text-gray-500 hover:text-black"
-        >
-          <IoMdClose size={20} />
-        </button>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="bg-[#262626] p-6 rounded-lg shadow-lg w-96 max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex justify-between mb-4">
+          <h2 className="text-white text-xl font-semibold">
+            {editingDish ? "Edit Dish" : "Add Dish"}
+          </h2>
+          <button
+            onClick={handleClose}
+            className="text-white hover:text-red-500"
+          >
+            <IoMdClose size={20} />
+          </button>
+        </div>
 
-        <h2 className="text-xl font-semibold mb-4">
-          {editingDish ? "Edit Dish" : "Add Dish"}
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <input
             type="text"
             placeholder="Dish name"
-            className="border rounded-lg w-full p-2"
+            className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.name}
             onChange={(e) => setDishData({ ...dishData, name: e.target.value })}
             required
@@ -155,7 +161,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
           <input
             type="number"
             placeholder="Price"
-            className="border rounded-lg w-full p-2"
+            className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.price}
             onChange={(e) =>
               setDishData({ ...dishData, price: e.target.value })
@@ -165,7 +171,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
           <input
             type="number"
             placeholder="Stock"
-            className="border rounded-lg w-full p-2"
+            className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.stock}
             onChange={(e) =>
               setDishData({ ...dishData, stock: Number(e.target.value) })
@@ -174,24 +180,24 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
           />
 
           <div>
-            <label className="block mb-1 text-gray-600">Upload Image</label>
+            <label className="text-white text-sm">Upload Image</label>
             <input
               type="file"
               accept="image/*"
-              className="border rounded-lg w-full p-2"
+              className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none mt-1"
               onChange={handleImageChange}
             />
             {preview && (
               <img
                 src={preview}
                 alt="Preview"
-                className="mt-3 rounded-lg w-full h-40 object-cover border"
+                className="mt-2 w-full h-40 object-cover rounded border border-gray-600"
               />
             )}
           </div>
 
           <select
-            className="border rounded-lg w-full p-2"
+            className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.category}
             onChange={(e) =>
               setDishData({ ...dishData, category: e.target.value })
@@ -199,7 +205,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
             required
           >
             <option value="">Select Category</option>
-            {categories?.map((cat) => (
+            {categories.map((cat) => (
               <option key={cat._id} value={cat._id}>
                 {cat.name}
               </option>
@@ -208,12 +214,12 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
 
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full"
+            className="w-full py-2 bg-yellow-400 font-bold rounded hover:bg-yellow-500 transition"
           >
             {editingDish ? "Update Dish" : "Add Dish"}
           </button>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };

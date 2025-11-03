@@ -30,6 +30,7 @@ const Dashboard = () => {
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
   const [isDishesModalOpen, setIsDishesModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState(null);
 
@@ -100,7 +101,15 @@ const Dashboard = () => {
           }}
         />
       )}
-      {activeTab === "Categories" && <CategoryTable />}
+      {activeTab === "Categories" && (
+        <CategoryTable
+          onAdd={() => setIsCategoryModalOpen(true)}
+          onEdit={(category) => {
+            setEditingCategory(category);
+            setIsCategoryModalOpen(true);
+          }}
+        />
+      )}
       {activeTab === "Tables" && (
         <TableTable
           onAdd={() => setIsTableModalOpen(true)}
@@ -120,7 +129,11 @@ const Dashboard = () => {
         />
       )}
       {isCategoryModalOpen && (
-        <CategoryModal setIsCategoryModalOpen={setIsCategoryModalOpen} />
+        <CategoryModal
+          setIsCategoryModalOpen={setIsCategoryModalOpen}
+          editingCategory={editingCategory}
+          setEditingCategory={setEditingCategory}
+        />
       )}
       {isDishesModalOpen && (
         <DishModal

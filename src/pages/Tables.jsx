@@ -1,21 +1,40 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import BottomNav from "../components/shared/BottomNav";
 import BackButton from "../components/shared/BackButton";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getTables } from "../https";
-import TablesCard from "../components/tables/TablesCard";
-import { useNavigate } from "react-router-dom";
 import { useTables } from "../hooks/useTables";
+import TablesCard from "../components/tables/TablesCard";
 import FullScreenLoader from "../components/shared/FullScreenLoader";
+
 const Tables = () => {
   const [status, setStatus] = useState("all");
   const { tables, isLoading } = useTables();
+  const [paymentInfo, setPaymentInfo] = useState(null);
 
-  // useEffect(() => {
-  //   document.title = "POS | Tables";
-  // }, []);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Tangkap query params dari Midtrans
+    const orderId = searchParams.get("order_id");
+    const transactionStatus = searchParams.get("transaction_status");
+
+    if (orderId && transactionStatus) {
+      // Simpan info pembayaran di state
+      setPaymentInfo({ orderId, transactionStatus });
+
+      // Hapus query params dari URL
+      navigate("/tables", { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   if (isLoading) return <FullScreenLoader />;
+
+  const filteredTables =
+    status === "all"
+      ? tables
+      : tables.filter((table) => table.status === status);
+
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
       <div className="flex items-center justify-between px-10 py-4">
@@ -25,6 +44,7 @@ const Tables = () => {
             Tables
           </h1>
         </div>
+
         <div className="flex items-center justify-around gap-4">
           <button
             onClick={() => setStatus("all")}
@@ -45,19 +65,23 @@ const Tables = () => {
         </div>
       </div>
 
+      {paymentInfo && transactionStatus === "settlement" && (
+        <div className="text-green-500 text-center py-2 font-semibold">
+          Payment Successful! Order ID: {paymentInfo.orderId}
+        </div>
+      )}
+
       <div className="grid grid-cols-4 gap-3 px-16 py-4 pb-24 h-[450px] overflow-y-scroll scrollbar-hide">
-        {tables.map((table) => {
-          return (
-            <TablesCard
-              key={table._id}
-              id={table._id}
-              name={table.tableNo}
-              status={table.status}
-              initials={table?.currentOrder?.customerDetails.name}
-              seats={table.seats}
-            />
-          );
-        })}
+        {filteredTables.map((table) => (
+          <TablesCard
+            key={table._id}
+            id={table._id}
+            name={table.tableNo}
+            status={table.status}
+            initials={table?.currentOrder?.customerDetails?.name || "-"}
+            seats={table.seats}
+          />
+        ))}
       </div>
 
       <BottomNav />
