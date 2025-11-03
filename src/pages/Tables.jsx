@@ -8,19 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { useTables } from "../hooks/useTables";
 import FullScreenLoader from "../components/shared/FullScreenLoader";
 const Tables = () => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (
-      params.has("order_id") ||
-      params.has("status_code") ||
-      params.has("transaction_status")
-    ) {
-      console.log("🧹 Cleaning up Midtrans redirect URL...");
-      navigate("/tables", { replace: true });
-    }
-  }, [navigate]);
-
   const [status, setStatus] = useState("all");
   const { tables, isLoading } = useTables();
 
