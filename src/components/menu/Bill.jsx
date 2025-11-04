@@ -96,11 +96,25 @@ const Bill = () => {
       return;
     }
 
+    // Pastikan cartData valid
+    if (!cartData || cartData.length === 0) {
+      enqueueSnackbar("Cart is empty!", { variant: "warning" });
+      return;
+    }
+
+    // Pastikan customer & table valid
+    if (!customerData?.table || !customerData?.customerName) {
+      enqueueSnackbar("Customer or table info missing!", {
+        variant: "warning",
+      });
+      return;
+    }
+
     const orderData = {
       customerDetails: {
         name: customerData.customerName,
-        phone: customerData.customerPhone,
-        guests: customerData.guests,
+        phone: customerData.customerPhone || "",
+        guests: customerData.guests || 1,
       },
       orderStatus: "In Progress",
       bills: {
@@ -109,13 +123,15 @@ const Bill = () => {
         totalWithTax: totalPriceWithTax,
       },
       items: cartData.map((i) => ({
-        dishId: i._id,
-        quantity: i.quantity,
-        price: i.price,
+        dishId: i._id, // pastikan ini ada
+        quantity: i.quantity || 1,
+        price: i.price || i.pricePerQuantity || 0,
       })),
-      table: customerData.table.tableId,
+      table: customerData.table.tableId, // pastikan tableId ada
       paymentMethod,
     };
+
+    console.log("Submitting order to backend:", orderData); // 🔹 debug
 
     // 💵 Cash
     if (paymentMethod === "Cash") {
@@ -144,7 +160,7 @@ const Bill = () => {
 
         // Jalankan popup Snap Midtrans
         window.snap.pay(snapToken, {
-          onSuccess: async function (result) {
+          onSuccess: async function () {
             enqueueSnackbar("Payment successful!", { variant: "success" });
             await verifyPayment(order_id);
           },
@@ -179,7 +195,7 @@ const Bill = () => {
                 variant: "success",
               });
 
-              // Buat order
+              // Buat order ke DB
               orderMutation.mutate(orderData);
             } else if (status === "pending") {
               enqueueSnackbar("Payment is still pending.", {
@@ -202,7 +218,6 @@ const Bill = () => {
       }
     }
   };
-
   // ===============================
   // 🔸 UI
   // ===============================
