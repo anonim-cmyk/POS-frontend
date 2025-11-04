@@ -64,7 +64,7 @@ const MenuContainer = () => {
 
     dispatch(
       addItems({
-        id: new Date(),
+        id: item._id,
         name: item.name,
         pricePerQuantity: item.price,
         quantity: itemCount,
