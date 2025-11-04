@@ -64,7 +64,7 @@ const MenuContainer = () => {
 
     dispatch(
       addItems({
-        _id: item._id, // pastikan dari DB
+        dishId: item._id, // pastikan dari DB
         name: item.name,
         pricePerQuantity: item.price,
         quantity: itemCount,
