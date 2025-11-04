@@ -88,23 +88,8 @@ const Bill = () => {
   // 🔸 Handle Place Order
   // ===============================
   const handlePlaceOrder = async () => {
-    console.log("Cart items raw:", cartData);
     if (!paymentMethod) {
       enqueueSnackbar("Please select a payment method!", {
-        variant: "warning",
-      });
-      return;
-    }
-
-    // Pastikan cartData valid
-    if (!cartData || cartData.length === 0) {
-      enqueueSnackbar("Cart is empty!", { variant: "warning" });
-      return;
-    }
-
-    // Pastikan customer & table valid
-    if (!customerData?.table || !customerData?.customerName) {
-      enqueueSnackbar("Customer or table info missing!", {
         variant: "warning",
       });
       return;
@@ -113,8 +98,8 @@ const Bill = () => {
     const orderData = {
       customerDetails: {
         name: customerData.customerName,
-        phone: customerData.customerPhone || "",
-        guests: customerData.guests || 1,
+        phone: customerData.customerPhone,
+        guests: customerData.guests,
       },
       orderStatus: "In Progress",
       bills: {
@@ -122,16 +107,10 @@ const Bill = () => {
         tax,
         totalWithTax: totalPriceWithTax,
       },
-      items: cartData.map((i) => ({
-        dishId: i._id, // pastikan ini ada
-        quantity: i.quantity || 1,
-        price: i.price || i.pricePerQuantity || 0,
-      })),
-      table: customerData.table.tableId, // pastikan tableId ada
+      items: cartData,
+      table: customerData.table.tableId,
       paymentMethod,
     };
-
-    console.log("Submitting order to backend:", orderData); // 🔹 debug
 
     // 💵 Cash
     if (paymentMethod === "Cash") {
@@ -160,7 +139,7 @@ const Bill = () => {
 
         // Jalankan popup Snap Midtrans
         window.snap.pay(snapToken, {
-          onSuccess: async function () {
+          onSuccess: async function (result) {
             enqueueSnackbar("Payment successful!", { variant: "success" });
             await verifyPayment(order_id);
           },
@@ -195,7 +174,7 @@ const Bill = () => {
                 variant: "success",
               });
 
-              // Buat order ke DB
+              // Buat order
               orderMutation.mutate(orderData);
             } else if (status === "pending") {
               enqueueSnackbar("Payment is still pending.", {
@@ -218,6 +197,7 @@ const Bill = () => {
       }
     }
   };
+
   // ===============================
   // 🔸 UI
   // ===============================
