@@ -65,7 +65,7 @@ const Tables = () => {
         </div>
       </div>
 
-      {paymentInfo && transactionStatus === "settlement" && (
+      {paymentInfo?.transactionStatus === "settlement" && (
         <div className="text-green-500 text-center py-2 font-semibold">
           Payment Successful! Order ID: {paymentInfo.orderId}
         </div>

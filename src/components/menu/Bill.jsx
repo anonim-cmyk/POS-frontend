@@ -88,6 +88,10 @@ const Bill = () => {
   // 🔸 Handle Place Order
   // ===============================
   const handlePlaceOrder = async () => {
+    console.log(
+      "Cart items for order:",
+      cartData.map((i) => i._id)
+    );
     if (!paymentMethod) {
       enqueueSnackbar("Please select a payment method!", {
         variant: "warning",
