@@ -166,6 +166,7 @@ const Bill = () => {
         });
 
         // ✅ Cek status pembayaran
+        // ✅ Cek status pembayaran
         async function verifyPayment(order_id) {
           try {
             const response = await axios.post(
@@ -181,8 +182,16 @@ const Bill = () => {
                 variant: "success",
               });
 
-              // Buat order
-              orderMutation.mutate({ ...orderData, order_id });
+              // 🔹 Tambahkan stabilizer agar tidak kehilangan pesan sukses
+              console.log("✅ Payment Success Detected:", order_id);
+              enqueueSnackbar(`Payment Successful! Order ID: ${order_id}`, {
+                variant: "success",
+              });
+
+              // 🔹 Tambahkan jeda kecil untuk memastikan data tersimpan di backend
+              setTimeout(() => {
+                orderMutation.mutate({ ...orderData, order_id });
+              }, 800);
             } else if (status === "pending") {
               enqueueSnackbar("Payment is still pending.", {
                 variant: "warning",
