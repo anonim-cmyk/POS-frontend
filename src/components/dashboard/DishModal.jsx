@@ -24,6 +24,8 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
       const res = await getCategories();
       return res.data?.data || res.data || [];
     },
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
   });
 
   const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];

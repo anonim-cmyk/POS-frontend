@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { addCategory } from "../../https";
+import { addCategory, updateCategory } from "../../https";
 
 const CategoryModal = ({
   setIsCategoryModalOpen,
@@ -26,7 +26,12 @@ const CategoryModal = ({
   }, [editingCategory]);
 
   const mutation = useMutation({
-    mutationFn: addCategory,
+    mutationFn: async (payload) => {
+      if (editingCategory?._id) {
+        return updateCategory({ categoryId: editingCategory._id, ...payload });
+      }
+      return addCategory(payload);
+    },
     onSuccess: () => {
       enqueueSnackbar(
         editingCategory
@@ -83,15 +88,6 @@ const CategoryModal = ({
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
           />
-          <textarea
-            placeholder="Description"
-            className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-          />
-
           <input
             type="text"
             placeholder="Icon (ex: 🍔)"

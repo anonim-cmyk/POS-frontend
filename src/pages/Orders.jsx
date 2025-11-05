@@ -19,7 +19,7 @@ const Orders = () => {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
   return (
-    <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden">
+    <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-y-scroll">
       <div className="mt-4 flex justify-between items-start text-white w-full px-8">
         <div className="flex items-center justify-center gap-2">
           <BackButton />
@@ -60,7 +60,7 @@ const Orders = () => {
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap gap-4 items-center justify-center overflow-y-scroll scrollbar-hide mt-7">
+      <div className="flex flex-wrap gap-4 items-center justify-start overflow-y-scroll scrollbar-hide mt-7 px-8">
         {resData?.data.data.length > 0 ? (
           resData.data.data.map((order) => (
             <OrdersCard key={order._id} order={order} />

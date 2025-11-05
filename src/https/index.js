@@ -50,3 +50,7 @@ export const getDishes = () => api.get("/api/dishes");
 export const updateDish = ({ dishId, ...dishData }) =>
   api.put(`/api/dishes/${dishId}`, dishData);
 export const deleteDish = (dishId) => api.delete(`/api/dishes/${dishId}`);
+
+// Dashboard
+export const getDashboardMetrics = (filter = "30d") =>
+  api.get(`/api/dashboard/metrics?range=${filter}`);

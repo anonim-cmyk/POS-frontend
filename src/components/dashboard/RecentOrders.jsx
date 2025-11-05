@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { formatDateAndTime } from "../../utils";
 import { enqueueSnackbar } from "notistack";
-import { getOrders, updateOrderStatus } from "../../https";
+import { getOrders, updateOrderStatus, updateTableStatus } from "../../https";
 
 const RecentOrders = () => {
   const queryClient = useQueryClient();
@@ -17,7 +17,7 @@ const RecentOrders = () => {
 
       // ✅ hanya ubah status meja jika order sudah selesai
       if (orderStatus === "Completed" && tableId) {
-        await updateTableStatus(tableId, "available");
+        await updateTableStatus({ tableId, status: "Available" });
       }
     },
     onSuccess: () => {
@@ -25,6 +25,10 @@ const RecentOrders = () => {
         variant: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (error) => {
+      console.error(error);
+      enqueueSnackbar("Failed to update order status", { variant: "error" });
     },
   });
 

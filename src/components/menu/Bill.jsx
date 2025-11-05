@@ -115,7 +115,13 @@ const Bill = () => {
     // 💵 Cash
     if (paymentMethod === "Cash") {
       enqueueSnackbar("Processing cash order...", { variant: "info" });
-      orderMutation.mutate(orderData);
+
+      const order_id = "ORDER-" + new Date().getTime();
+      const updatedOrderData = {
+        ...orderData,
+        order_id, // tambahkan di sini
+      };
+      orderMutation.mutate(updatedOrderData);
       return;
     }
 
@@ -175,7 +181,7 @@ const Bill = () => {
               });
 
               // Buat order
-              orderMutation.mutate(orderData);
+              orderMutation.mutate({ ...orderData, order_id });
             } else if (status === "pending") {
               enqueueSnackbar("Payment is still pending.", {
                 variant: "warning",
