@@ -112,6 +112,7 @@ const Bill = () => {
       paymentMethod,
     };
 
+    console.log("🚀 Sending order to backend:", orderData);
     // 💵 Cash
     if (paymentMethod === "Cash") {
       enqueueSnackbar("Processing cash order...", { variant: "info" });
