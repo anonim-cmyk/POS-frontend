@@ -97,14 +97,16 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
             <h3 className="text-sm font-semibold mb-1">Items Ordered</h3>
             <ul className="text-sm text-gray-700">
               {orderInfo.items?.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex justify-between items-center text-xs"
-                >
-                  <span>
-                    {item.name} × {item.quantity}
-                  </span>
-                  <span>{formatCurrency(item.price * item.quantity)}</span>
+                <li key={index} className="flex flex-col text-xs">
+                  <div className="flex justify-between items-center">
+                    <span>
+                      {item.name} × {item.quantity}
+                    </span>
+                    <span>{formatCurrency(item.price)}</span>
+                  </div>
+                  <div className="text-gray-500 text-[11px] italic">
+                    Harga satuan: {formatCurrency(item.pricePerQuantity)}
+                  </div>
                 </li>
               ))}
             </ul>

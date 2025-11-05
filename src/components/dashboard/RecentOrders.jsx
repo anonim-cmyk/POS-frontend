@@ -38,6 +38,8 @@ const RecentOrders = () => {
     placeholderData: keepPreviousData,
   });
 
+  console.log("🧠 resData:", resData);
+
   if (isError) {
     enqueueSnackbar("Something went wrong!", { variant: "error" });
   }
