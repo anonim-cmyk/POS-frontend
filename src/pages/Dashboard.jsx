@@ -10,6 +10,7 @@ import DishModal from "../components/dashboard/DishModal";
 import CategoryModal from "../components/dashboard/CategoryModal";
 import CategoryTable from "../components/dashboard/CategoryTable";
 import TableTable from "../components/dashboard/TableTable";
+import PaymentTable from "../components/dashboard/PaymentTable";
 
 const buttons = [
   // { label: "Add Table", icon: <GrTableAdd />, action: "table" },
@@ -91,7 +92,7 @@ const Dashboard = () => {
       {/* Tabs */}
       {activeTab === "Metrics" && <Metrics />}
       {activeTab === "Orders" && <RecentOrders />}
-      {activeTab === "Payments" && <div>Payments Tab</div>}
+      {activeTab === "Payments" && <PaymentTable />}
       {activeTab === "Dishes" && (
         <DishTable
           onAdd={() => setIsDishesModalOpen(true)}

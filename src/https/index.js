@@ -54,3 +54,6 @@ export const deleteDish = (dishId) => api.delete(`/api/dishes/${dishId}`);
 // Dashboard
 export const getDashboardMetrics = (filter = "30d") =>
   api.get(`/api/dashboard/metrics?range=${filter}`);
+
+// Payment
+export const getPayments = () => api.get("/api/payment");

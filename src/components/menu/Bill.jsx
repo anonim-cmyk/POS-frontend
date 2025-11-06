@@ -117,13 +117,29 @@ const Bill = () => {
     if (paymentMethod === "Cash") {
       enqueueSnackbar("Processing cash order...", { variant: "info" });
 
-      const order_id = "ORDER-" + new Date().getTime();
-      const updatedOrderData = {
-        ...orderData,
-        order_id, // tambahkan di sini
-      };
-      orderMutation.mutate(updatedOrderData);
-      return;
+      try {
+        const order_id = "ORDER-" + new Date().getTime();
+
+        // 🔹 Simpan data pembayaran cash ke backend
+        await axios.post(
+          "http://localhost:8000/api/payment/create-order",
+          {
+            order_id,
+            gross_amount: totalPriceWithTax,
+            customer_name: customerData.customerName || "Guest",
+            tableNo: customerData.table.tableNo,
+            tableId: customerData.table.tableId,
+            method: "cash", // penting!
+          },
+          { withCredentials: true }
+        );
+
+        // 🔹 Setelah payment cash tersimpan, lanjut buat order
+        orderMutation.mutate({ ...orderData, order_id });
+      } catch (err) {
+        console.error("❌ Cash Payment Error:", err);
+        enqueueSnackbar("Failed to record cash payment", { variant: "error" });
+      }
     }
 
     // 💳 Online (Midtrans)
