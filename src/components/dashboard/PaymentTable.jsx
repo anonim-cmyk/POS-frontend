@@ -11,16 +11,13 @@ const PaymentTable = () => {
     queryKey: ["payments"],
     queryFn: async () => {
       const res = await getPayments();
-      return res.data?.data || []; // ambil array di dalam res.data.data
+      return res.data?.data || [];
     },
   });
 
   if (isLoading) return <p>Loading payments...</p>;
   if (error) return <p>Error loading payments: {error.message}</p>;
 
-  console.log("Payments data:", payments);
-
-  // ✅ Pastikan payments adalah array agar tidak error
   const safePayments = Array.isArray(payments) ? payments : [];
 
   return (
@@ -33,7 +30,8 @@ const PaymentTable = () => {
             <th className="p-3">Amount</th>
             <th className="p-3">Status</th>
             <th className="p-3">Method</th>
-            <th className="p-3">Email</th>
+            <th className="p-3">Customer Name</th>
+            <th className="p-3">Phone</th>
             <th className="p-3">Created At</th>
           </tr>
         </thead>
@@ -44,12 +42,25 @@ const PaymentTable = () => {
               className="border-b border-[#333] hover:bg-[#1e1e1e]"
             >
               <td className="p-3">{p.orderId}</td>
-              <td className="p-3">Rp {p.amount.toLocaleString()}</td>
-              <td className="p-3">{p.status}</td>
+              <td className="p-3">Rp {p.amount.toLocaleString("id-ID")}</td>
+              <td
+                className={`p-3 capitalize ${
+                  p.status === "success"
+                    ? "text-green-400"
+                    : p.status === "pending"
+                    ? "text-yellow-400"
+                    : "text-red-400"
+                }`}
+              >
+                {p.status}
+              </td>
               <td className="p-3">{p.method}</td>
-              <td className="p-3">{p.email}</td>
+              <td className="p-3">{p.customerName || "-"}</td>
+              <td className="p-3">{p.customerPhone || "-"}</td>
               <td className="p-3">
-                {format(new Date(p.createdAt), "dd MMM yyyy HH:mm")}
+                {p.createdAt
+                  ? format(new Date(p.createdAt), "dd MMM yyyy HH:mm")
+                  : "-"}
               </td>
             </tr>
           ))}
