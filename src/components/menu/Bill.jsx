@@ -127,6 +127,7 @@ const Bill = () => {
             order_id,
             gross_amount: totalPriceWithTax,
             customer_name: customerData.customerName || "Guest",
+            customer_phone: customerData.customerPhone || "-",
             tableNo: customerData.table.tableNo,
             tableId: customerData.table.tableId,
             method: "cash", // penting!
@@ -152,6 +153,7 @@ const Bill = () => {
             order_id,
             gross_amount: totalPriceWithTax,
             customer_name: customerData.customerName || "Guest",
+            customer_phone: customerData.customerPhone || "-",
             tableNo: customerData.table.tableNo,
             tableId: customerData.table.tableId,
           },
