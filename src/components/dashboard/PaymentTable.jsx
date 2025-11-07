@@ -37,7 +37,34 @@ const PaymentTable = () => {
         </thead>
         <tbody>
           {safePayments.length > 0 ? (
-            safePayments.map((p) => console.log(p))
+            safePayments.map((p) => (
+              <tr
+                key={p._id}
+                className="border-b border-[#333] hover:bg-[#1e1e1e]"
+              >
+                <td className="p-3">{p.orderId}</td>
+                <td className="p-3">Rp {p.amount.toLocaleString("id-ID")}</td>
+                <td
+                  className={`p-3 capitalize ${
+                    p.status === "success"
+                      ? "text-green-400"
+                      : p.status === "pending"
+                      ? "text-yellow-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {p.status}
+                </td>
+                <td className="p-3">{p.method}</td>
+                <td className="p-3">{p.customerName || "-"}</td>
+                <td className="p-3">{p.customerPhone || "-"}</td>
+                <td className="p-3">
+                  {p.createdAt
+                    ? format(new Date(p.createdAt), "dd MMM yyyy HH:mm")
+                    : "-"}
+                </td>
+              </tr>
+            ))
           ) : (
             <tr>
               <td colSpan="7">
