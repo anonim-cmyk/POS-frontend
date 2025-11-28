@@ -30,7 +30,10 @@ const Auth = () => {
           </h1>
           {/* Compononent */}
           {isRegistration ? (
-            <Register setIsRegistration={setIsRegistration} />
+            <Register
+              setIsRegistration={setIsRegistration}
+              isRegistration={isRegistration}
+            />
           ) : (
             <Login />
           )}

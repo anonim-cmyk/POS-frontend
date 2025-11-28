@@ -50,10 +50,24 @@ export const getDishes = () => api.get("/api/dishes");
 export const updateDish = ({ dishId, ...dishData }) =>
   api.put(`/api/dishes/${dishId}`, dishData);
 export const deleteDish = (dishId) => api.delete(`/api/dishes/${dishId}`);
+export const getPopularDishes = () => api.get("/api/dishes/popular/list");
 
-// Dashboard
+// 📊 Dashboard
 export const getDashboardMetrics = (filter = "30d") =>
   api.get(`/api/dashboard/metrics?range=${filter}`);
 
-// Payment
-export const getPayments = () => api.get("/api/payment");
+// 💰 Payment (Custom Query with Pagination & Filter)
+export const getPayments = ({
+  page = 1,
+  limit = 10,
+  status = "",
+  period = "",
+} = {}) => {
+  const params = new URLSearchParams();
+  params.append("page", page);
+  params.append("limit", limit);
+  if (status) params.append("status", status);
+  if (period) params.append("period", period);
+
+  return api.get(`/api/payment/filtered?${params.toString()}`);
+};

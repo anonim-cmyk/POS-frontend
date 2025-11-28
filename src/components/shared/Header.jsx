@@ -48,7 +48,7 @@ const Header = () => {
 
       {/* Disini LogoUser */}
       <div className="flex items-center justify-center gap-7">
-        {userData.role === "admin" && (
+        {userData.role === "Admin" && (
           <MdDashboard
             size={32}
             className="cursor-pointer"

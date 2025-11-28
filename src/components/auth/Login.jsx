@@ -31,8 +31,8 @@ const Login = () => {
     onSuccess: (res) => {
       const { data } = res;
       console.log(data);
-      const { _id, name, email, phone, role } = data.data;
-      dispatch(setUser({ _id, name, email, phone, role }));
+      const { userId, name, email, phone, role } = data.data;
+      dispatch(setUser({ userId, name, email, phone, role }));
       navigate("/");
     },
     onError: (error) => {
@@ -82,7 +82,7 @@ const Login = () => {
           onClick={handleSubmit}
           className="w-full mt-6 px-4 py-3 rounded-lg bg-yellow-400 text-gray-900 font-bold"
         >
-          Sign Up
+          Sign In
         </button>
       </form>
     </div>

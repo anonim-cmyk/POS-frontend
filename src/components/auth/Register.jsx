@@ -123,7 +123,7 @@ const Register = ({ setIsRegistration }) => {
           Choose your role
         </label>
         <div className="flex items-center gap-3 mt-4">
-          {["Waiter", "Cashier", "Admin"].map((role) => (
+          {["Cashier", "Admin"].map((role) => (
             <button
               className={`bg-[#1f1f1f] px-4 py-3 w-full rounded-lg text-[#ababab] ${
                 formData.role === role ? "bg-indigo-900" : ""
