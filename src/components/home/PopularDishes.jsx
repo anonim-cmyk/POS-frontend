@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 const PopularDishes = () => {
   const fetchDishes = async () => {

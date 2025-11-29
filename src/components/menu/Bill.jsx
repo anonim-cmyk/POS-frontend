@@ -11,7 +11,7 @@ import Invoice from "../invoice/Invoice";
 
 const Bill = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const customerData = useSelector((state) => state.customer);
   const cartData = useSelector((state) => state.cart);
   const total = useSelector(getTotalPrice);
@@ -95,7 +95,7 @@ const Bill = () => {
       return;
     }
 
-    const orderData = {
+    const orderPayload = {
       customerDetails: {
         name: customerData.customerName,
         phone: customerData.customerPhone,
@@ -112,119 +112,71 @@ const Bill = () => {
       paymentMethod,
     };
 
-    console.log("🚀 Sending order to backend:", orderData);
-    // 💵 Cash
-    if (paymentMethod === "Cash") {
-      enqueueSnackbar("Processing cash order...", { variant: "info" });
+    console.log("🚀 Sending order to backend:", orderPayload);
 
+    // 💵 CASH FLOW
+    if (paymentMethod === "cash") {
       try {
-        const order_id = "ORDER-" + new Date().getTime();
+        const orderCode = "ORDER-" + Date.now();
 
-        // 🔹 Simpan data pembayaran cash ke backend
         await axios.post(
           "http://localhost:8000/api/payment/create-order",
           {
-            order_id,
+            order_id: orderCode,
             gross_amount: totalPriceWithTax,
-            customer_name: customerData.customerName || "Guest",
-            customer_phone: customerData.customerPhone || "-",
+            customer_name: customerData.customerName,
+            customer_phone: customerData.customerPhone,
             tableNo: customerData.table.tableNo,
             tableId: customerData.table.tableId,
-            method: "cash", // penting!
+            method: "cash", // ✅ pasti kebaca backend
           },
           { withCredentials: true }
         );
 
-        // 🔹 Setelah payment cash tersimpan, lanjut buat order
-        orderMutation.mutate({ ...orderData, order_id });
+        orderMutation.mutate({ ...orderPayload, orderCode });
       } catch (err) {
-        console.error("❌ Cash Payment Error:", err);
         enqueueSnackbar("Failed to record cash payment", { variant: "error" });
       }
     }
 
-    // 💳 Online (Midtrans)
-    if (paymentMethod === "Online") {
+    // 💳 ONLINE FLOW (MIDTRANS SNAP)
+    if (paymentMethod === "online") {
       try {
-        const order_id = "ORDER-" + new Date().getTime();
-        const { data } = await axios.post(
+        const orderCode = "ORDER-" + Date.now();
+
+        const response = await axios.post(
           "http://localhost:8000/api/payment/create-order",
           {
-            order_id,
+            order_id: orderCode,
             gross_amount: totalPriceWithTax,
-            customer_name: customerData.customerName || "Guest",
-            customer_phone: customerData.customerPhone || "-",
+            customer_name: customerData.customerName,
+            customer_phone: customerData.customerPhone,
             tableNo: customerData.table.tableNo,
             tableId: customerData.table.tableId,
+            method: "online", // ✅ jangan "Online"
           },
           { withCredentials: true }
         );
 
-        const snapToken = data.token;
+        console.log("📨 Response backend:", response.data);
 
-        // Jalankan popup Snap Midtrans
+        const snapToken = response.data.token;
+        console.log("🎟 Snap Token diterima:", snapToken); // ✅ pasti muncul browser & terminal
+
+        if (!snapToken) throw new Error("Snap token missing!"); // biar kebaca error jelas
+
         window.snap.pay(snapToken, {
-          onSuccess: async function (result) {
+          // ✅ pakai snapToken yang baru diambil
+          onSuccess: () => {
             enqueueSnackbar("Payment successful!", { variant: "success" });
-            await verifyPayment(order_id);
+            orderMutation.mutate({ ...orderPayload, orderCode });
           },
-          onPending: async function () {
-            enqueueSnackbar("Waiting for payment confirmation...", {
-              variant: "info",
-            });
-            await verifyPayment(order_id);
-          },
-          onError: function () {
+          onError: () => {
             enqueueSnackbar("Payment failed!", { variant: "error" });
           },
-          onClose: async function () {
-            enqueueSnackbar("Checking payment status...", { variant: "info" });
-            await verifyPayment(order_id);
-          },
         });
-
-        // ✅ Cek status pembayaran
-        // ✅ Cek status pembayaran
-        async function verifyPayment(order_id) {
-          try {
-            const response = await axios.post(
-              "http://localhost:8000/api/payment/verify-payment",
-              { order_id },
-              { withCredentials: true }
-            );
-
-            const status = response.data.data.transaction_status;
-
-            if (status === "settlement" || status === "capture") {
-              enqueueSnackbar("Payment confirmed by Midtrans!", {
-                variant: "success",
-              });
-
-              // 🔹 Tambahkan stabilizer agar tidak kehilangan pesan sukses
-              console.log("✅ Payment Success Detected:", order_id);
-              enqueueSnackbar(`Payment Successful! Order ID: ${order_id}`, {
-                variant: "success",
-              });
-
-              // 🔹 Tambahkan jeda kecil untuk memastikan data tersimpan di backend
-              setTimeout(() => {
-                orderMutation.mutate({ ...orderData, order_id });
-              }, 800);
-            } else if (status === "pending") {
-              enqueueSnackbar("Payment is still pending.", {
-                variant: "warning",
-              });
-              setTimeout(() => verifyPayment(order_id), 5000);
-            } else {
-              enqueueSnackbar("Payment not successful.", { variant: "error" });
-            }
-          } catch (err) {
-            console.error("❌ Verify Payment Error:", err);
-            enqueueSnackbar("Failed to verify payment.", { variant: "error" });
-          }
-        }
-      } catch (error) {
-        console.error("Midtrans Error:", error);
+      } catch (err) {
+        console.error("❌ Midtrans Error:", err);
         enqueueSnackbar("Failed to create Midtrans transaction", {
           variant: "error",
         });
@@ -232,9 +184,6 @@ const Bill = () => {
     }
   };
 
-  // ===============================
-  // 🔸 UI
-  // ===============================
   return (
     <>
       {/* Total Items */}
@@ -282,9 +231,9 @@ const Bill = () => {
         {["Cash", "Online"].map((method) => (
           <button
             key={method}
-            onClick={() => setPaymentMethod(method)}
+            onClick={() => setPaymentMethod(method.toLowerCase())}
             className={`px-4 py-3 w-full rounded-lg font-semibold ${
-              paymentMethod === method
+              paymentMethod === method.toLowerCase()
                 ? "bg-[#383737] text-white"
                 : "bg-[#1f1f1f] text-[#ababab]"
             }`}
