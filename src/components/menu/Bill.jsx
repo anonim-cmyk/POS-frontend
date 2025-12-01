@@ -153,23 +153,19 @@ const Bill = () => {
             customer_phone: customerData.customerPhone,
             tableNo: customerData.table.tableNo,
             tableId: customerData.table.tableId,
-            method: "online", // ✅ jangan "Online"
+            method: "online",
           },
           { withCredentials: true }
         );
 
-        console.log("📨 Response backend:", response.data);
-
         const snapToken = response.data.token;
-        console.log("🎟 Snap Token diterima:", snapToken); // ✅ pasti muncul browser & terminal
-
-        if (!snapToken) throw new Error("Snap token missing!"); // biar kebaca error jelas
 
         window.snap.pay(snapToken, {
-          // ✅ pakai snapToken yang baru diambil
           onSuccess: () => {
             enqueueSnackbar("Payment successful!", { variant: "success" });
-            orderMutation.mutate({ ...orderPayload, orderCode });
+
+            // ✅ ORDER CODE DIPAKSA SAMA DARI PAYMENT
+            orderMutation.mutate({ ...orderPayload, orderCode: orderCode });
           },
           onError: () => {
             enqueueSnackbar("Payment failed!", { variant: "error" });

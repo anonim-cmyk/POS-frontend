@@ -49,7 +49,7 @@ const Menu = () => {
         </div>
         <hr className="border-[#2a2a2a] border-t-2" />
         {/* Bills */}
-        <div className="overflow-y-scroll h-[calc(90vh-5rem-5rem)] scrollbar-hide">
+        <div className="overflow-y-scroll h-[calc(90vh-5rem-5rem)]">
           <Bill />
         </div>
       </div>
