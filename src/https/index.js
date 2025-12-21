@@ -34,7 +34,8 @@ export const verifyPaymentMidtrans = (data) =>
 export const addOrder = (data) => api.post("/api/order", data);
 export const getOrders = () => api.get("/api/order");
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
-  api.put(`/api/order/${orderId}`, { orderStatus });
+  api.patch(`/api/order/${orderId}`, { orderStatus });
+export const getOrderById = (orderId) => api.get(`/api/order/${orderId}`);
 
 // 🗂️ Category
 export const addCategory = (data) => api.post("/api/categories", data);

@@ -25,15 +25,17 @@ const PaymentTable = () => {
   });
 
   const payments = data?.data || [];
+  console.log("payment: ", payments);
+
   const totalPages = data?.totalPages || 1;
 
   // Export Excel
   const handleExportExcel = () => {
     const exportData = payments.map((p) => ({
       "Order ID": p.orderId,
-      Amount: p.amount,
+      Amount: p.grossAmount,
       Status: p.status,
-      Method: p.method,
+      Method: p.paymentMethod,
       "Customer Name": p.customerName || "-",
       Phone: p.customerPhone || "-",
       "Created At": p.createdAt
@@ -124,8 +126,10 @@ const PaymentTable = () => {
                 key={p._id}
                 className="border-b border-[#333] hover:bg-[#1e1e1e]"
               >
-                <td className="p-3">{p.orderId}</td>
-                <td className="p-3">Rp {p.amount.toLocaleString("id-ID")}</td>
+                <td className="p-3">{p.orderCode}</td>
+                <td className="p-3">
+                  Rp {p.grossAmount.toLocaleString("id-ID")}
+                </td>
                 <td
                   className={`p-3 capitalize ${
                     p.status === "success"
@@ -137,7 +141,7 @@ const PaymentTable = () => {
                 >
                   {p.status}
                 </td>
-                <td className="p-3">{p.method}</td>
+                <td className="p-3">{p.paymentMethod}</td>
                 <td className="p-3">{p.customerName || "-"}</td>
                 <td className="p-3">{p.customerPhone || "-"}</td>
                 <td className="p-3">
