@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 
 const Greetings = () => {
   const [dateTime, setDateTime] = useState(new Date());
-
   const userData = useSelector((state) => state.user);
 
   useEffect(() => {

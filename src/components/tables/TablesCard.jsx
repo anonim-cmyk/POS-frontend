@@ -5,6 +5,8 @@ import { FaLongArrowAltRight } from "react-icons/fa";
 import { updatedTable } from "../../redux/slices/customerSlices";
 
 const TablesCard = ({ id, name, status, initials, seats }) => {
+  console.log("initials: ", initials);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleClick = (name) => {

@@ -21,7 +21,7 @@ export const getTables = () => api.get("/api/table");
 export const updatedTable = ({ tableId, ...tableData }) =>
   api.put(`/api/table/${tableId}`, tableData);
 export const updateTableStatus = ({ tableId, status }) =>
-  api.put("/api/table/update-status", { tableId, status });
+  api.patch(`/api/table/${tableId}/status`, { status });
 export const deleteTable = (tableId) => api.delete(`/api/table/${tableId}`);
 
 // 💳 Payment (Midtrans)
@@ -41,7 +41,7 @@ export const getOrderById = (orderId) => api.get(`/api/order/${orderId}`);
 export const addCategory = (data) => api.post("/api/categories", data);
 export const getCategories = () => api.get("/api/categories");
 export const updateCategory = ({ categoryId, ...categoryData }) =>
-  api.put(`/api/categories/${categoryId}`, categoryData);
+  api.patch(`/api/categories/${categoryId}`, categoryData);
 export const deleteCategory = (categoryId) =>
   api.delete(`/api/categories/${categoryId}`);
 

@@ -21,7 +21,8 @@ const CategoryModal = ({
 
   useEffect(() => {
     if (editingCategory) {
-      setFormData(editingCategory);
+      const { name, icon, bgColor } = editingCategory;
+      setFormData({ name, icon, bgColor });
     }
   }, [editingCategory]);
 
@@ -114,9 +115,18 @@ const CategoryModal = ({
 
           <button
             type="submit"
-            className="w-full py-2 bg-yellow-400 font-bold rounded hover:bg-yellow-500 transition"
+            disabled={mutation.isPending}
+            className={`w-full py-2 font-bold rounded transition ${
+              mutation.isPending
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-yellow-400 hover:bg-yellow-500"
+            }`}
           >
-            {editingCategory ? "Update Category" : "Add Category"}
+            {mutation.isPending
+              ? "Saving..."
+              : editingCategory
+              ? "Update Category"
+              : "Add Category"}
           </button>
         </form>
       </motion.div>
