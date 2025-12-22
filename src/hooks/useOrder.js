@@ -1,10 +1,9 @@
 import { useState, useCallback, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-
+import shortUUID from "short-uuid";
 import { addOrder, updatedTable, createOrderMidtrans } from "../https";
 
-const shortUUID = require("short-uuid");
 const translator = shortUUID();
 
 const TAX_RATE = 5.25;
