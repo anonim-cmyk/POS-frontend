@@ -20,6 +20,7 @@ export const useOrder = ({
 
   const tax = (total * TAX_RATE) / 100;
   const totalWithTax = total + tax;
+  const totalWithTaxRounded = Math.round(totalWithTax);
 
   /* =========================
      Mutations
@@ -109,7 +110,7 @@ export const useOrder = ({
         // 🔹 CREATE PAYMENT (BACKEND)
         const paymentRes = await createOrderMidtrans({
           order_id: orderCode,
-          gross_amount: totalWithTax,
+          gross_amount: totalWithTaxRounded,
           customer_name: customerData.customerName,
           customer_phone: customerData.customerPhone,
           tableNo: customerData.table.tableNo,
