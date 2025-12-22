@@ -5,8 +5,6 @@ import { addOrder, updatedTable, createOrderMidtrans } from "../https";
 
 const TAX_RATE = 5.25;
 
-const isLockedRef = useRef(false);
-
 export const useOrder = ({
   cartData,
   customerData,
@@ -18,6 +16,7 @@ export const useOrder = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderInfo, setOrderInfo] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const isLockedRef = useRef(false);
 
   const tax = (total * TAX_RATE) / 100;
   const totalWithTax = total + tax;
