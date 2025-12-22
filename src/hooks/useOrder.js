@@ -2,8 +2,7 @@ import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 
-import { addOrder, updatedTable } from "../https";
-import { createPayment } from "../services/payment.service";
+import { addOrder, updatedTable, createOrderMidtrans } from "../https";
 
 const TAX_RATE = 5.25;
 
@@ -40,7 +39,9 @@ export const useOrder = ({
     onSuccess: (res) => {
       const { data } = res.data;
 
-      enqueueSnackbar("Order placed successfully!", { variant: "success" });
+      enqueueSnackbar("Order placed successfully!", {
+        variant: "success",
+      });
 
       setOrderInfo(data);
       setShowInvoice(true);
@@ -105,28 +106,25 @@ export const useOrder = ({
       const payload = buildOrderPayload(orderCode, paymentMethod);
 
       try {
-        if (paymentMethod === "cash") {
-          await createPayment({
-            orderCode,
-            amount: totalWithTax,
-            customer: customerData,
-            table: customerData.table,
-            method: "cash",
-          });
+        // 🔹 CREATE PAYMENT (BACKEND)
+        const paymentRes = await createOrderMidtrans({
+          order_id: orderCode,
+          gross_amount: totalWithTax,
+          customer_name: customerData.customerName,
+          customer_phone: customerData.customerPhone,
+          tableNo: customerData.table.tableNo,
+          tableId: customerData.table.tableId,
+          method: paymentMethod,
+        });
 
+        // 🔹 CASH
+        if (paymentMethod === "cash") {
           orderMutation.mutate(payload);
         }
 
+        // 🔹 ONLINE
         if (paymentMethod === "online") {
-          const res = await createPayment({
-            orderCode,
-            amount: totalWithTax,
-            customer: customerData,
-            table: customerData.table,
-            method: "online",
-          });
-
-          window.snap.pay(res.data.token, {
+          window.snap.pay(paymentRes.data.token, {
             onSuccess: () => orderMutation.mutate(payload),
             onPending: () => setIsProcessing(false),
             onError: () => setIsProcessing(false),
