@@ -49,48 +49,106 @@ const Bill = () => {
 
   return (
     <>
-      {/* TOTAL */}
-      <div className="px-5 mt-2 flex justify-between">
-        <p>Items ({cartData.length})</p>
-        <p>{total}</p>
+      {/* Total Items */}
+      <div className="flex items-center justify-between px-5 mt-2">
+        <p className="text-xs text-[#ababab] font-medium mt-2">
+          Items ({cartData.length})
+        </p>
+        <h1 className="text-[#f5f5f5] text-md font-bold">
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(total)}
+        </h1>
       </div>
 
-      <div className="px-5 mt-2 flex justify-between">
-        <p>Tax</p>
-        <p>{tax}</p>
+      {/* Tax */}
+      <div className="flex items-center justify-between px-5 mt-2">
+        <p className="text-xs text-[#ababab] font-medium mt-2">Tax (5.25%)</p>
+        <h1 className="text-[#f5f5f5] text-md font-bold">
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(tax)}
+        </h1>
       </div>
 
-      <div className="px-5 mt-2 flex justify-between">
-        <p>Total with Tax</p>
-        <p>{totalWithTax}</p>
+      {/* Total with Tax */}
+      <div className="flex items-center justify-between px-5 mt-2">
+        <p className="text-xs text-[#ababab] font-medium mt-2">
+          Total with Tax
+        </p>
+        <h1 className="text-[#f5f5f5] text-md font-bold">
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+          }).format(totalWithTax)}
+        </h1>
       </div>
 
-      {/* PAYMENT */}
-      <div className="flex gap-3 px-5 mt-4">
+      {/* Payment Buttons */}
+      <div className="flex items-center gap-3 px-5 mt-4">
         {["Cash", "Online"].map((method) => (
           <button
             key={method}
-            disabled={isProcessing}
             onClick={() => setPaymentMethod(method.toLowerCase())}
+            disabled={isProcessing}
+            className={`px-4 py-3 w-full rounded-lg font-semibold transition-colors ${
+              paymentMethod === method.toLowerCase()
+                ? "bg-[#383737] text-white"
+                : "bg-[#1f1f1f] text-[#ababab]"
+            } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {method}
           </button>
         ))}
       </div>
 
-      <div className="flex gap-3 px-5 mt-4">
-        <button disabled={!orderInfo} onClick={() => setShowInvoice(true)}>
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3 px-5 mt-4">
+        <button
+          onClick={() => setShowInvoice(true)}
+          disabled={!orderInfo || isProcessing}
+          className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           Print Receipt
         </button>
 
         <button
-          disabled={isProcessing}
           onClick={() => placeOrder(paymentMethod)}
+          disabled={isProcessing}
+          className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
-          {isProcessing ? "Processing..." : "Place Order"}
+          {isProcessing ? (
+            <span className="flex items-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            "Place Order"
+          )}
         </button>
       </div>
 
+      {/* Invoice */}
       {showInvoice && orderInfo && (
         <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
       )}
