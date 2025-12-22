@@ -1,10 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 
 import { addOrder, updatedTable, createOrderMidtrans } from "../https";
 
+const shortUUID = require("short-uuid");
+const translator = shortUUID();
+
 const TAX_RATE = 5.25;
+
+const isLockedRef = useRef(false);
 
 export const useOrder = ({
   cartData,
@@ -87,7 +92,8 @@ export const useOrder = ({
   ========================== */
   const placeOrder = useCallback(
     async (paymentMethod) => {
-      if (isProcessing) return;
+      if (isLockedRef.current) return;
+      isLockedRef.current = true;
 
       if (!paymentMethod) {
         enqueueSnackbar("Please select a payment method!", {
@@ -103,7 +109,7 @@ export const useOrder = ({
 
       setIsProcessing(true);
 
-      const orderCode = `ORDER-${Date.now()}`;
+      const orderCode = `ORDER-${translator.new()}`;
       const payload = buildOrderPayload(orderCode, paymentMethod);
 
       try {
