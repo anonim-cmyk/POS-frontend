@@ -1,10 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import shortUUID from "short-uuid";
 import { addOrder, updatedTable, createOrderMidtrans } from "../https";
-
-const translator = shortUUID();
 
 const TAX_RATE = 5.25;
 
@@ -108,7 +105,7 @@ export const useOrder = ({
 
       setIsProcessing(true);
 
-      const orderCode = `ORDER-${translator.new()}`;
+      const orderCode = `ORDER-${crypto.randomUUID()}`;
       const payload = buildOrderPayload(orderCode, paymentMethod);
 
       try {
