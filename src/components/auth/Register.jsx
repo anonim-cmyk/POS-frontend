@@ -1,24 +1,24 @@
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { register } from "../../https";
 
+const INITIAL_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  password: "",
+  role: "",
+};
 const Register = ({ setIsRegistration }) => {
-  const [formData, setIsFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    role: "",
-  });
-
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [formData, setFormData] = useState(INITIAL_FORM);
 
   const handleChange = (e) => {
-    setIsFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -26,8 +26,11 @@ const Register = ({ setIsRegistration }) => {
     registerMutation.mutate(formData);
   };
 
-  const handleRoleSelection = (selectedRole) => {
-    setIsFormData({ ...formData, role: selectedRole });
+  const handleRoleSelection = (role) => {
+    setFormData((prev) => ({
+      ...prev,
+      role,
+    }));
   };
 
   const registerMutation = useMutation({
@@ -35,13 +38,7 @@ const Register = ({ setIsRegistration }) => {
     onSuccess: (res) => {
       const { data } = res;
       enqueueSnackbar(data.message, { variant: "success" });
-      setIsFormData({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        role: "",
-      });
+      setFormData(INITIAL_FORM);
 
       setTimeout(() => {
         setIsRegistration(false);
