@@ -55,7 +55,11 @@ export const useOrder = ({ cartData, customerData, total }) => {
 
       const order = {
         ...res.data.data,
-        customerDetails: customerData,
+        customerDetails: {
+          name: customerData.customerName,
+          phone: customerData.customerPhone,
+          guests: customerData.guests,
+        },
       };
 
       // 3️⃣ Update table (jangan sampai gagal silent)
