@@ -58,7 +58,7 @@ export const useOrder = ({
 
       const order = {
         ...res.data.data,
-        customer: customerData,
+        customerDetails: customerData,
       };
 
       // 3️⃣ Update table (jangan sampai gagal silent)
