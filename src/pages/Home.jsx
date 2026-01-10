@@ -1,5 +1,3 @@
-import { getOrders } from "../https";
-import { useQuery } from "@tanstack/react-query";
 import Greetings from "../components/home/Greetings";
 import MiniCard from "../components/home/MiniCard";
 import PopularDishes from "../components/home/PopularDishes";
@@ -7,14 +5,10 @@ import RecentOrders from "../components/home/RecentOrders";
 import BottomNav from "../components/shared/BottomNav";
 import { BsCashCoin } from "react-icons/bs";
 import { GrInProgress } from "react-icons/gr";
+import { useOrderDetail } from "../hooks/useOrderDetail";
 
 const Home = () => {
-  const { data } = useQuery({
-    queryKey: ["orders"],
-    queryFn: getOrders,
-  });
-
-  const orders = Array.isArray(data?.data?.data) ? data.data.data : [];
+  const { orders, isLoading } = useOrderDetail({ page: 1, limit: 1000 });
 
   // ✅ Hitung Total Earnings berdasarkan totalWithTax dari order completed
   const totalEarnings = orders

@@ -1,42 +1,31 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getDishes, deleteDish } from "../https";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteDish, getDishes } from "../api";
 import { enqueueSnackbar } from "notistack";
 
-export const useDishes = () => {
+export const useDishes = ({ page = 1, limit = 10, all = false } = {}) => {
   const queryClient = useQueryClient();
 
-  const {
-    data: res,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["dishes"],
-    queryFn: async () => {
-      const res = await getDishes();
-      return res?.data || res; // backend bisa return {data:[]} atau []
-    },
+  const { data, isLoading, isError } = useQuery({
+    queryKey: all ? ["dishes", "all"] : ["dishes", page, limit],
+    queryFn: () => getDishes({ page, limit: all ? 1000 : limit }),
+    keepPreviousData: true,
+    select: (res) => res.data,
   });
 
-  // ✅ Normalisasi supaya SELALU array
-  const dishes = Array.isArray(res)
-    ? res
-    : Array.isArray(res?.data)
-    ? res.data
-    : [];
-
   const deleteMutation = useMutation({
-    mutationFn: (id) => deleteDish(id),
+    mutationFn: deleteDish,
     onSuccess: () => {
-      enqueueSnackbar("Dish deleted successfully", { variant: "success" });
-      queryClient.invalidateQueries(["dishes"]);
+      enqueueSnackbar("Dish deleted successfully!", { variant: "success" });
+      queryClient.invalidateQueries({ queryKey: ["dishes"] });
     },
     onError: () => {
-      enqueueSnackbar("Failed to delete dish", { variant: "error" });
+      enqueueSnackbar("Failed to delete dish!", { variant: "error" });
     },
   });
 
   return {
-    dishes,
+    dishes: data?.data || [],
+    meta: data?.meta,
     isLoading,
     isError,
     deleteDish: deleteMutation.mutate,

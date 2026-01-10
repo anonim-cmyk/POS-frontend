@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { addDish, updateDish, getCategories } from "../../https";
+import { addDish, getCategories, updateDish } from "../../api";
 
 const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
   const queryClient = useQueryClient();

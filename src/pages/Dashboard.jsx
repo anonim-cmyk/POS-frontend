@@ -1,6 +1,3 @@
-import { GrTableAdd } from "react-icons/gr";
-import { TbCategoryPlus } from "react-icons/tb";
-import { BiSolidDish } from "react-icons/bi";
 import Metrics from "../components/dashboard/Metrics";
 import RecentOrders from "../components/dashboard/RecentOrders";
 import DishTable from "../components/dashboard/DishTable";

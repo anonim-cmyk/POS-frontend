@@ -1,9 +1,10 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { addOrder, updatedTable, createOrderMidtrans } from "../https";
-
-const TAX_RATE = 5.25;
+import { buildOrderPayload, calculateTax } from "../utils/order.utils";
+import { processPayment } from "../service/payment.service";
+import { addOrder } from "../api/order.api";
+import { updatedTable } from "../api/table.api";
 
 export const useOrder = ({
   cartData,
@@ -18,131 +19,73 @@ export const useOrder = ({
   const [showInvoice, setShowInvoice] = useState(false);
   const isLockedRef = useRef(false);
 
-  const tax = (total * TAX_RATE) / 100;
-  const totalWithTax = total + tax;
-  const totalWithTaxRounded = Math.round(totalWithTax);
-
-  /* =========================
-     Mutations
-  ========================== */
-  const tableUpdateMutation = useMutation({
-    mutationFn: updatedTable,
-    onSuccess: () => {
-      dispatch(removeCustomer());
-      dispatch(removeAllItems());
-      setIsProcessing(false);
-    },
-    onError: () => setIsProcessing(false),
-  });
+  const tax = calculateTax(total);
+  const totalWithTax = Math.round(total + tax);
 
   const orderMutation = useMutation({
     mutationFn: addOrder,
-    onSuccess: (res) => {
-      const { data } = res.data;
+    onSuccess: ({ data }) => {
+      enqueueSnackbar("Order placed successfully!", { variant: "success" });
 
-      enqueueSnackbar("Order placed successfully!", {
-        variant: "success",
-      });
-
-      setOrderInfo(data);
+      setOrderInfo(data.data);
       setShowInvoice(true);
 
-      tableUpdateMutation.mutate({
+      updatedTable({
+        tableId: data.data.table,
         status: "Booked",
-        orderId: data._id,
-        tableId: data.table,
+        orderId: data.data._id,
       });
+
+      dispatch(removeCustomer());
+      dispatch(removeAllItems());
+      setIsProcessing(false);
+      isLockedRef.current = false;
     },
     onError: (err) => {
-      enqueueSnackbar(err.response?.data?.message || "Failed to place order", {
+      enqueueSnackbar(err.response?.data?.message || "Order failed", {
         variant: "error",
       });
       setIsProcessing(false);
+      isLockedRef.current = false;
     },
   });
 
-  /* =========================
-     Helpers
-  ========================== */
-  const buildOrderPayload = (orderCode, paymentMethod) => ({
-    orderCode,
-    customerDetails: {
-      name: customerData.customerName,
-      phone: customerData.customerPhone,
-      guests: customerData.guests,
-    },
-    orderStatus: "In Progress",
-    bills: {
+  const placeOrder = async (paymentMethod) => {
+    if (isLockedRef.current || !cartData.length) return;
+
+    isLockedRef.current = true;
+    setIsProcessing(true);
+
+    const orderCode = `ORDER-${crypto.randomUUID()}`;
+
+    const payload = buildOrderPayload({
+      orderCode,
+      customer: customerData,
+      cart: cartData,
       total,
-      tax,
-      totalWithTax,
-    },
-    items: cartData,
-    table: customerData.table.tableId,
-    paymentMethod,
-  });
+      tableId: customerData.table.tableId,
+      paymentMethod,
+    });
 
-  /* =========================
-     Main Handler
-  ========================== */
-  const placeOrder = useCallback(
-    async (paymentMethod) => {
-      if (isLockedRef.current) return;
-      isLockedRef.current = true;
-
-      if (!paymentMethod) {
-        enqueueSnackbar("Please select a payment method!", {
-          variant: "warning",
-        });
-        return;
-      }
-
-      if (cartData.length === 0) {
-        enqueueSnackbar("Cart is empty!", { variant: "warning" });
-        return;
-      }
-
-      setIsProcessing(true);
-
-      const orderCode = `ORDER-${crypto.randomUUID()}`;
-      const payload = buildOrderPayload(orderCode, paymentMethod);
-
-      try {
-        // 🔹 CREATE PAYMENT (BACKEND)
-        const paymentRes = await createOrderMidtrans({
-          order_id: orderCode,
-          gross_amount: totalWithTaxRounded,
-          customer_name: customerData.customerName,
-          customer_phone: customerData.customerPhone,
-          tableNo: customerData.table.tableNo,
-          tableId: customerData.table.tableId,
-          method: paymentMethod,
-        });
-
-        // 🔹 CASH
-        if (paymentMethod === "cash") {
-          orderMutation.mutate(payload);
-        }
-
-        // 🔹 ONLINE
-        if (paymentMethod === "online") {
-          window.snap.pay(paymentRes.data.token, {
-            onSuccess: () => orderMutation.mutate(payload),
-            onPending: () => setIsProcessing(false),
-            onError: () => setIsProcessing(false),
-            onClose: () => setIsProcessing(false),
-          });
-        }
-      } catch (err) {
-        enqueueSnackbar(
-          err.response?.data?.message || "Failed to process order",
-          { variant: "error" }
-        );
-        setIsProcessing(false);
-      }
-    },
-    [cartData, customerData, total, isProcessing]
-  );
+    try {
+      await processPayment({
+        orderCode,
+        amount: totalWithTax,
+        customer: customerData,
+        table: customerData.table,
+        method: paymentMethod,
+        onSuccess: () => orderMutation.mutate(payload),
+        onError: () => {
+          setIsProcessing(false);
+          isLockedRef.current = false;
+        },
+      });
+    } catch {
+      enqueueSnackbar("Payment failed", { variant: "error" });
+      setIsProcessing(false);
+      isLockedRef.current = false;
+    }
+  };
 
   return {
     tax,

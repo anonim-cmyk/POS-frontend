@@ -1,92 +1,27 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
 import { formatDateAndTime } from "../../utils";
 import { enqueueSnackbar } from "notistack";
-import { getOrders, updateOrderStatus, updateTableStatus } from "../../https";
+import { useOrderDetail } from "../../hooks/useOrderDetail";
+import { useUpdateOrderStatus } from "../../hooks/useUpdateOrderStatus";
+import { useState } from "react";
 
 const RecentOrders = () => {
-  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [periodFilter, setPeriodFilter] = useState("");
+  const limit = 10;
 
   // ✅ Mutation untuk update order status
-  const orderStatusUpdateMutation = useMutation({
-    mutationFn: async ({ orderId, orderStatus }) => {
-      // ✅ hanya update order, table sudah diupdate otomatis di backend
-      await updateOrderStatus({ orderId, orderStatus });
-    },
-    onSuccess: () => {
-      console.log("✅ Order status updated successfully");
-      enqueueSnackbar("Order status updated successfully", {
-        variant: "success",
-      });
-      // Invalidate queries untuk refresh data
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["tables"] });
-    },
-    onError: (error) => {
-      console.error("❌ Failed to update order status:", error);
-      enqueueSnackbar(
-        error.response?.data?.message || "Failed to update order status",
-        { variant: "error" }
-      );
-    },
-  });
+  const updateStatus = useUpdateOrderStatus();
 
-  // ✅ Fetch orders
-  const {
-    data: resData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["orders"],
-    queryFn: async () => {
-      const response = await getOrders();
-      console.log("📦 Raw orders response:", response);
-      return response;
-    },
-    placeholderData: keepPreviousData,
-    refetchInterval: 30000, // Refresh setiap 30 detik
+  // ✅ Fetch orders dengan filter dinamis
+  const { orders, meta, isLoading } = useOrderDetail({
+    status: statusFilter || undefined,
+    period: periodFilter || undefined,
+    page,
+    limit: 10,
   });
-
-  // ✅ Parse orders dengan fallback multiple structure
-  const orders = (() => {
-    // Try different response structures
-    if (Array.isArray(resData?.data?.data)) {
-      console.log("✅ Using resData.data.data structure");
-      return resData.data.data;
-    }
-    if (Array.isArray(resData?.data)) {
-      console.log("✅ Using resData.data structure");
-      return resData.data;
-    }
-    if (Array.isArray(resData)) {
-      console.log("✅ Using resData structure");
-      return resData;
-    }
-    console.warn("⚠️ Orders structure tidak dikenali:", resData);
-    return [];
-  })();
 
   console.log("📋 Parsed orders:", orders);
-
-  // ✅ Handle error
-  if (isError) {
-    console.error("❌ Error fetching orders:", error);
-    return (
-      <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
-        <div className="bg-red-900/20 border border-red-600 rounded p-4">
-          <p className="text-red-400 font-semibold">Failed to load orders</p>
-          <p className="text-red-300/70 text-sm mt-1">
-            {error?.message || "Something went wrong"}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   // ✅ Loading state
   if (isLoading) {
@@ -112,15 +47,52 @@ const RecentOrders = () => {
       return;
     }
 
-    console.log("🎯 Changing status:", { orderId, orderStatus, tableId });
-    orderStatusUpdateMutation.mutate({ orderId, orderStatus, tableId });
+    updateStatus.mutate({ orderId, orderStatus, tableId });
   };
 
   return (
     <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
-      <h2 className="text-[#f5f5f5] text-xl font-semibold mb-4">
-        Recent Orders ({orders.length})
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-[#f5f5f5] text-xl font-semibold">
+          Recent Orders ({orders.length})
+        </h2>
+        <div className="flex gap-3">
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="bg-gray-800 text-white px-3 py-2 rounded-lg"
+          >
+            <option value="">All Status</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Ready">Ready</option>
+            <option value="Completed">Completed</option>
+          </select>
+
+          <select
+            value={periodFilter}
+            onChange={(e) => {
+              setPeriodFilter(e.target.value);
+              setPage(1);
+            }}
+            className="bg-gray-800 text-white px-3 py-2 rounded-lg"
+          >
+            <option value="">All Time</option>
+            <option value="weekly">This Week</option>
+            <option value="monthly">This Month</option>
+            <option value="yearly">This Year</option>
+          </select>
+
+          <button
+            // onClick={handleExportExcel}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold"
+          >
+            Export Excel
+          </button>
+        </div>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-[#f5f5f5]">
@@ -178,7 +150,7 @@ const RecentOrders = () => {
                           tableId: order.table?._id || order.table,
                         });
                       }}
-                      disabled={orderStatusUpdateMutation.isPending}
+                      disabled={updateStatus.isPending}
                     >
                       <option className="text-yellow-500" value="In Progress">
                         In Progress
@@ -236,10 +208,34 @@ const RecentOrders = () => {
             )}
           </tbody>
         </table>
+
+        <div className="flex justify-center items-center gap-2 mt-4">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span>
+            {page} / {meta?.totalPages || 1}
+          </span>
+
+          <button
+            onClick={() =>
+              setPage((p) => Math.min(p + 1, meta?.totalPages || 1))
+            }
+            disabled={page === meta?.totalPages}
+            className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {/* Loading Overlay */}
-      {orderStatusUpdateMutation.isPending && (
+      {updateStatus.isPending && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-[#262626] p-6 rounded-lg shadow-xl">
             <div className="flex items-center gap-3">

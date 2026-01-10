@@ -4,10 +4,10 @@ import { CgProfile } from "react-icons/cg";
 import { useDispatch, useSelector } from "react-redux";
 import { IoIosLogOut } from "react-icons/io";
 import { useMutation } from "@tanstack/react-query";
-import { logout } from "../../https";
 import { removeUser } from "../../redux/slices/userSlices";
 import { useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
+import { logout } from "../../api/auth.api";
 
 const Header = () => {
   const userData = useSelector((state) => state.user);

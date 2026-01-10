@@ -1,21 +1,12 @@
 import { CiSearch } from "react-icons/ci";
 import OrderList from "./OrderList";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getOrders } from "../../https";
-import { enqueueSnackbar } from "notistack";
+import { useOrderDetail } from "../../hooks/useOrderDetail";
 
 const RecentOrders = () => {
-  const { data: resData, isError } = useQuery({
-    queryKey: ["orders"],
-    queryFn: async () => {
-      return await getOrders();
-    },
-    placeholderData: keepPreviousData,
-  });
+  const { orders, meta, isLoading } = useOrderDetail();
 
-  if (isError) {
-    enqueueSnackbar("Something went wrong!", { variant: "error" });
-  }
+  console.log("data: ", orders);
+
   return (
     <div className="px-8 mt-8">
       <div className=" bg-[#1a1a1a] w-full h-[450px] rounded-lg">
@@ -38,10 +29,8 @@ const RecentOrders = () => {
 
         {/* Order List */}
         <div className="overflow-y-scroll h-[350px] scrollbar-hide">
-          {resData?.data?.data?.length > 0 ? (
-            resData.data.data.map((order) => (
-              <OrderList key={order._id} order={order} />
-            ))
+          {orders.length > 0 ? (
+            orders.map((order) => <OrderList key={order._id} order={order} />)
           ) : (
             <p className="col-span-3 text-gray-500 flex items-center justify-center h-full">
               No order available

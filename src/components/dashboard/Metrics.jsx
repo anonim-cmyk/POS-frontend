@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { getDashboardMetrics } from "../../https";
 import FullScreenLoader from "../shared/FullScreenLoader";
 import { useState } from "react";
+import { getDashboardMetrics } from "../../api/dashboard.api";
 
 const Metrics = () => {
   const [filter, setFilter] = useState("30d");

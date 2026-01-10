@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { useState } from "react";
-import { register } from "../../https";
+import { register } from "../../api/auth.api";
 
 const INITIAL_FORM = {
   name: "",

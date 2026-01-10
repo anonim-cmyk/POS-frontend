@@ -1,33 +1,24 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCategories, deleteCategory } from "../https";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteCategory, getCategories } from "../api";
 import { enqueueSnackbar } from "notistack";
 
 export const useCategories = () => {
   const queryClient = useQueryClient();
 
   const {
-    data: res,
+    data: categories = [],
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await getCategories();
-      return res?.data || res;
-    },
+    queryFn: getCategories,
   });
 
-  const categories = Array.isArray(res)
-    ? res
-    : Array.isArray(res?.data)
-    ? res.data
-    : [];
-
   const deleteMutation = useMutation({
-    mutationFn: (id) => deleteCategory(id),
+    mutationFn: deleteCategory,
     onSuccess: () => {
-      enqueueSnackbar("Category deleted successfully", { variant: "success" });
-      queryClient.invalidateQueries(["categories"]);
+      enqueueSnackbar("Category deleted successfully!", { variant: "success" });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: () => {
       enqueueSnackbar("Failed to delete category", { variant: "error" });

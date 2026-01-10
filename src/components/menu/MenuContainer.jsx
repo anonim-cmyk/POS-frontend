@@ -3,72 +3,20 @@ import { FaShoppingCart } from "react-icons/fa";
 import { GrRadialSelected } from "react-icons/gr";
 import { useDispatch } from "react-redux";
 import { addItems } from "../../redux/slices/cartSlices";
-import { useQuery } from "@tanstack/react-query";
-import { getCategories, getDishes } from "../../https";
+import { useCategories } from "../../hooks/useCategories";
+import { useDishes } from "../../hooks/useDishes";
 
 const MenuContainer = () => {
   const dispatch = useDispatch();
   const [selected, setSelected] = useState(null);
   const [qty, setQty] = useState({});
 
-  // ✅ Fetch Categories
+  const { categories, isLoading: catLoad, isError: catError } = useCategories();
   const {
-    data: categoryData,
-    isLoading: catLoad,
-    error: catError,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategories,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-  });
-
-  // ✅ Fetch Dishes
-  const {
-    data: dishesData,
+    dishes,
     isLoading: dishLoad,
-    error: dishError,
-  } = useQuery({
-    queryKey: ["dishes"],
-    queryFn: getDishes,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-  });
-
-  // ✅ Parse dengan logging untuk debug
-  const categories = useMemo(() => {
-    console.log("📦 RAW CATEGORY DATA:", categoryData);
-
-    if (Array.isArray(categoryData?.data?.data)) {
-      return categoryData.data.data;
-    }
-    if (Array.isArray(categoryData?.data)) {
-      return categoryData.data;
-    }
-    if (Array.isArray(categoryData)) {
-      return categoryData;
-    }
-
-    console.warn("⚠️ Categories structure tidak dikenali:", categoryData);
-    return [];
-  }, [categoryData]);
-
-  const dishes = useMemo(() => {
-    console.log("📦 RAW DISHES DATA:", dishesData);
-
-    if (Array.isArray(dishesData?.data?.data)) {
-      return dishesData.data.data;
-    }
-    if (Array.isArray(dishesData?.data)) {
-      return dishesData.data;
-    }
-    if (Array.isArray(dishesData)) {
-      return dishesData;
-    }
-
-    console.warn("⚠️ Dishes structure tidak dikenali:", dishesData);
-    return [];
-  }, [dishesData]);
+    isError: dishError,
+  } = useDishes({ all: true });
 
   // ✅ Log hasil parsing
   useEffect(() => {
@@ -85,6 +33,8 @@ const MenuContainer = () => {
       items: dishes.filter((dish) => dish?.category?._id === cat._id),
     }));
   }, [categories, dishes]);
+
+  console.log("menus: ", menus);
 
   // ✅ Auto select first category (hanya sekali)
   useEffect(() => {
@@ -182,7 +132,6 @@ const MenuContainer = () => {
             className="flex flex-col items-start justify-between p-4 rounded-lg h-[100px] cursor-pointer transition-all"
             style={{ backgroundColor: menu.bgColor || "#222" }}
             onClick={() => {
-              console.log("🎯 Selected menu:", menu);
               setSelected(menu);
             }}
           >

@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { getPayments } from "../../https";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useState } from "react";
+import { getPayments } from "../../api";
 
 const PaymentTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,19 +13,17 @@ const PaymentTable = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["payments", currentPage, statusFilter, periodFilter],
-    queryFn: async () => {
-      const res = await getPayments({
+    queryFn: () =>
+      getPayments({
         page: currentPage,
         limit: itemsPerPage,
         status: statusFilter,
         period: periodFilter,
-      });
-      return res.data;
-    },
+      }),
+    keepPreviousData: true,
   });
 
   const payments = data?.data || [];
-  console.log("payment: ", payments);
 
   const totalPages = data?.totalPages || 1;
 

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getTables, deleteTable } from "../https";
 import { enqueueSnackbar } from "notistack";
+import { deleteTable, getTables } from "../api/table.api";
 
 export const useTables = () => {
   const queryClient = useQueryClient();

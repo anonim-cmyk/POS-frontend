@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { addTable, updatedTable } from "../../https";
+import { addTable, updatedTable } from "../../api/table.api";
 
 const Modal = ({ setIsTableModalOpen, editingTable, setEditingTable }) => {
   console.log(editingTable);

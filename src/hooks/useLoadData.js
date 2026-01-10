@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getApiData } from "../https";
 import { useDispatch } from "react-redux";
 import { removeUser, setUser } from "../redux/slices/userSlices";
 import { useNavigate } from "react-router-dom";
+import { getApiData } from "../api/auth.api";
 
 const useLoadData = () => {
   const [isLoading, setIsLoading] = useState(true);

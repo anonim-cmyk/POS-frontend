@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "../../https";
 import { enqueueSnackbar } from "notistack";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/slices/userSlices";
 import { useNavigate } from "react-router-dom";
+import { login } from "../../api/auth.api";
 
 const Login = () => {
   const [formData, setIsFormData] = useState({
