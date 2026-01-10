@@ -14,7 +14,11 @@ export const buildOrderPayload = ({
 
   return {
     orderCode,
-    customerDetails: customer,
+    customerDetails: {
+      name: customer.customerName,
+      phone: customer.customerPhone,
+      guests: customer.guests,
+    },
     orderStatus: "In Progress",
     bills: {
       total,
