@@ -24,30 +24,6 @@ export const useOrder = ({
 
   const orderMutation = useMutation({
     mutationFn: addOrder,
-    onSuccess: ({ data }) => {
-      enqueueSnackbar("Order placed successfully!", { variant: "success" });
-
-      setOrderInfo(data.data);
-      setShowInvoice(true);
-
-      updatedTable({
-        tableId: data.data.table,
-        status: "Booked",
-        orderId: data.data._id,
-      });
-
-      dispatch(removeCustomer());
-      dispatch(removeAllItems());
-      setIsProcessing(false);
-      isLockedRef.current = false;
-    },
-    onError: (err) => {
-      enqueueSnackbar(err.response?.data?.message || "Order failed", {
-        variant: "error",
-      });
-      setIsProcessing(false);
-      isLockedRef.current = false;
-    },
   });
 
   const placeOrder = async (paymentMethod) => {
@@ -58,17 +34,8 @@ export const useOrder = ({
 
     const orderCode = `ORDER-${crypto.randomUUID()}`;
 
-    const payload = buildOrderPayload({
-      orderCode,
-      customer: customerData,
-      cart: cartData,
-      total,
-      tableId: customerData.table.tableId,
-      paymentMethod,
-    });
-
     try {
-      // 1️⃣ Payment dulu
+      // 1️⃣ Payment
       await processPayment({
         orderCode,
         amount: totalWithTax,
@@ -78,26 +45,44 @@ export const useOrder = ({
       });
 
       // 2️⃣ Create order
-      const res = await orderMutation.mutateAsync(payload);
+      const res = await orderMutation.mutateAsync(
+        buildOrderPayload({
+          orderCode,
+          customer: customerData,
+          cart: cartData,
+          total,
+          tableId: customerData.table.tableId,
+          paymentMethod,
+        })
+      );
+
+      const order = res.data.data;
+
+      // 3️⃣ Update table (jangan sampai gagal silent)
+      try {
+        await updatedTable({
+          tableId: order.table,
+          status: "Booked",
+          orderId: order._id,
+        });
+      } catch (err) {
+        console.error("Update table failed", err);
+      }
 
       enqueueSnackbar("Order placed successfully!", { variant: "success" });
 
-      setOrderInfo(res.data.data);
+      setOrderInfo(order);
       setShowInvoice(true);
-
-      // 3️⃣ Update table (await!)
-      await updatedTable({
-        tableId: res.data.data.table,
-        status: "Booked",
-        orderId: res.data.data._id,
-      });
 
       dispatch(removeCustomer());
       dispatch(removeAllItems());
     } catch (err) {
-      enqueueSnackbar(err?.response?.data?.message || "Order failed", {
-        variant: "error",
-      });
+      console.error("ORDER FLOW ERROR:", err);
+
+      enqueueSnackbar(
+        err?.response?.data?.message || err?.message || "Order failed",
+        { variant: "error" }
+      );
     } finally {
       setIsProcessing(false);
       isLockedRef.current = false;
