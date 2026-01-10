@@ -39,7 +39,11 @@ export const useOrder = ({
       await processPayment({
         orderCode,
         amount: totalWithTax,
-        customer: customerData,
+        customer: {
+          name: customer.customerName,
+          phone: customer.customerPhone,
+          guests: customer.guests,
+        },
         table: customerData.table,
         method: paymentMethod,
       });
