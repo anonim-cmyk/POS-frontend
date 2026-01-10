@@ -56,7 +56,10 @@ export const useOrder = ({
         })
       );
 
-      const order = res.data.data;
+      const order = {
+        ...res.data.data,
+        customer: customerData,
+      };
 
       // 3️⃣ Update table (jangan sampai gagal silent)
       try {
@@ -73,9 +76,6 @@ export const useOrder = ({
 
       setOrderInfo(order);
       setShowInvoice(true);
-
-      dispatch(removeCustomer());
-      dispatch(removeAllItems());
     } catch (err) {
       console.error("ORDER FLOW ERROR:", err);
 

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { FaCheck } from "react-icons/fa6";
 
 const Invoice = ({ orderInfo, setShowInvoice }) => {
+  console.log("order info", orderInfo);
+
   const invoiceRef = useRef(null);
 
   const handlePrint = () => {

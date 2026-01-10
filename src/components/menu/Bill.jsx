@@ -150,7 +150,16 @@ const Bill = () => {
 
       {/* Invoice */}
       {showInvoice && orderInfo && (
-        <Invoice orderInfo={orderInfo} setShowInvoice={setShowInvoice} />
+        <Invoice
+          orderInfo={orderInfo}
+          setShowInvoice={(val) => {
+            setShowInvoice(val);
+            if (!val) {
+              dispatch(removeCustomer());
+              dispatch(removeAllItems());
+            }
+          }}
+        />
       )}
     </>
   );
