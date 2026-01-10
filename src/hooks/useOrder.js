@@ -6,14 +6,7 @@ import { processPayment } from "../service/payment.service";
 import { addOrder } from "../api/order.api";
 import { updatedTable } from "../api/table.api";
 
-export const useOrder = ({
-  cartData,
-  customerData,
-  total,
-  dispatch,
-  removeCustomer,
-  removeAllItems,
-}) => {
+export const useOrder = ({ cartData, customerData, total }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderInfo, setOrderInfo] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
@@ -40,9 +33,9 @@ export const useOrder = ({
         orderCode,
         amount: totalWithTax,
         customer: {
-          name: customer.customerName,
-          phone: customer.customerPhone,
-          guests: customer.guests,
+          name: customerData.customerName,
+          phone: customerData.customerPhone,
+          guests: customerData.guests,
         },
         table: customerData.table,
         method: paymentMethod,
