@@ -68,20 +68,37 @@ export const useOrder = ({
     });
 
     try {
+      // 1️⃣ Payment dulu
       await processPayment({
         orderCode,
         amount: totalWithTax,
         customer: customerData,
         table: customerData.table,
         method: paymentMethod,
-        onSuccess: () => orderMutation.mutate(payload),
-        onError: () => {
-          setIsProcessing(false);
-          isLockedRef.current = false;
-        },
       });
-    } catch {
-      enqueueSnackbar("Payment failed", { variant: "error" });
+
+      // 2️⃣ Create order
+      const res = await orderMutation.mutateAsync(payload);
+
+      enqueueSnackbar("Order placed successfully!", { variant: "success" });
+
+      setOrderInfo(res.data.data);
+      setShowInvoice(true);
+
+      // 3️⃣ Update table (await!)
+      await updatedTable({
+        tableId: res.data.data.table,
+        status: "Booked",
+        orderId: res.data.data._id,
+      });
+
+      dispatch(removeCustomer());
+      dispatch(removeAllItems());
+    } catch (err) {
+      enqueueSnackbar(err?.response?.data?.message || "Order failed", {
+        variant: "error",
+      });
+    } finally {
       setIsProcessing(false);
       isLockedRef.current = false;
     }
