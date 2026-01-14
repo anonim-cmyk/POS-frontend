@@ -1,62 +1,34 @@
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import { useState } from "react";
-import { getPayments } from "../../api";
+import { exportPaymentsToExcel } from "../../utils/excelExport.utils";
+import { usePayments } from "../../hooks/usePayments";
+import { useTableFilters } from "../../hooks/useTableFilters";
 
 const PaymentTable = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("");
-  const [periodFilter, setPeriodFilter] = useState("");
-  const itemsPerPage = 10;
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["payments", currentPage, statusFilter, periodFilter],
-    queryFn: () =>
-      getPayments({
-        page: currentPage,
-        limit: itemsPerPage,
-        status: statusFilter,
-        period: periodFilter,
-      }),
-    keepPreviousData: true,
+  const {
+    page,
+    setPage,
+    filters: { status, period },
+    setFilter,
+  } = useTableFilters(["status", "period"]);
+  const { payments, totalPages, totalAmount, isLoading, error } = usePayments({
+    page,
+    statusFilter: status,
+    periodFilter: period,
+    itemsPerPage: 10,
   });
 
-  const payments = data?.data || [];
-
-  const totalPages = data?.totalPages || 1;
-
-  // Export Excel
-  const handleExportExcel = () => {
-    const exportData = payments.map((p) => ({
-      "Order ID": p.orderId,
-      Amount: p.grossAmount,
-      Status: p.status,
-      Method: p.paymentMethod,
-      "Customer Name": p.customerName || "-",
-      Phone: p.customerPhone || "-",
-      "Created At": p.createdAt
-        ? format(new Date(p.createdAt), "dd MMM yyyy HH:mm")
-        : "-",
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Payments");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    saveAs(blob, `Payments_${new Date().toISOString()}.xlsx`);
-  };
-
-  if (isLoading) return <p>Loading payments...</p>;
-  if (error) return <p>Error loading payments: {error.message}</p>;
+  if (isLoading) {
+    return (
+      <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
+        <h2 className="text-[#f5f5f5] text-xl font-semibold mb-4">Payments</h2>
+        <div className="animate-pulse space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-16 bg-[#333] rounded" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 text-white">
@@ -66,11 +38,8 @@ const PaymentTable = () => {
         <div className="flex gap-3">
           {/* Filter status */}
           <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
+            value={status}
+            onChange={(e) => setFilter("status", e.target.value)}
             className="bg-gray-800 text-white px-3 py-2 rounded-lg"
           >
             <option value="">All Status</option>
@@ -81,11 +50,8 @@ const PaymentTable = () => {
 
           {/* Filter periode */}
           <select
-            value={periodFilter}
-            onChange={(e) => {
-              setPeriodFilter(e.target.value);
-              setCurrentPage(1);
-            }}
+            value={period}
+            onChange={(e) => setFilter("period", e.target.value)}
             className="bg-gray-800 text-white px-3 py-2 rounded-lg"
           >
             <option value="">All Time</option>
@@ -96,7 +62,7 @@ const PaymentTable = () => {
 
           {/* Export */}
           <button
-            onClick={handleExportExcel}
+            onClick={() => exportPaymentsToExcel(payments)}
             className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold"
           >
             Export Excel
@@ -162,36 +128,41 @@ const PaymentTable = () => {
       </table>
 
       <div className="mt-4 text-right text-lg font-semibold">
-        Total Amount: Rp {data?.totalAmount?.toLocaleString("id-ID") || 0}
+        Total Amount: Rp {totalAmount.toLocaleString("id-ID") || 0}
       </div>
 
       {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-          disabled={currentPage === 1}
+          onClick={() => setPage(page - 1)}
+          disabled={page === 1}
           className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
         >
           Prev
         </button>
 
-        {[...Array(totalPages)].map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded ${
-              currentPage === i + 1
-                ? "bg-blue-600"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
+        {[...Array(totalPages)].map((_, i) => {
+          const p = i + 1;
+          const isActive = p === page;
+
+          return (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`px-3 py-1 rounded transition ${
+                isActive
+                  ? "bg-blue-600 text-white font-semibold cursor-default"
+                  : "bg-gray-700 hover:bg-gray-600 text-gray-200"
+              }`}
+            >
+              {p}
+            </button>
+          );
+        })}
 
         <button
-          onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-          disabled={currentPage === totalPages}
+          onClick={() => setPage(page + 1)}
+          disabled={page === totalPages}
           className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
         >
           Next

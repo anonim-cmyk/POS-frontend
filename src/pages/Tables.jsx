@@ -6,24 +6,33 @@ import { useTables } from "../hooks/useTables";
 import TablesCard from "../components/tables/TablesCard";
 import FullScreenLoader from "../components/shared/FullScreenLoader";
 
+const TABLE_STATUS = {
+  ALL: "all",
+  BOOKED: "Booked",
+};
+
 const Tables = () => {
-  const [status, setStatus] = useState("all");
   const { tables, isLoading } = useTables();
   const [paymentInfo, setPaymentInfo] = useState(null);
 
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = searchParams.get("status") || "all";
+
+  const handleStatusChange = (value) => {
+    if (value === "all") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ status: value });
+    }
+  };
 
   useEffect(() => {
-    // Tangkap query params dari Midtrans
     const orderId = searchParams.get("order_id");
     const transactionStatus = searchParams.get("transaction_status");
 
     if (orderId && transactionStatus) {
-      // Simpan info pembayaran di state
       setPaymentInfo({ orderId, transactionStatus });
-
-      // Hapus query params dari URL
       navigate("/tables", { replace: true });
     }
   }, [searchParams, navigate]);
@@ -40,28 +49,21 @@ const Tables = () => {
       <div className="flex items-center justify-between px-10 py-4">
         <div className="flex items-center gap-4">
           <BackButton />
-          <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider">
-            Tables
-          </h1>
+          <h1 className="text-[#f5f5f5] text-2xl font-bold">Tables</h1>
         </div>
 
-        <div className="flex items-center justify-around gap-4">
-          <button
-            onClick={() => setStatus("all")}
-            className={`text-[#ababab] text-lg ${
-              status === "all" && "bg-[#383838] rounded-lg px-5 py-2"
-            }  rounded-lg px-5 py-2 font-semibold`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setStatus("booked")}
-            className={`text-[#ababab] text-lg ${
-              status === "booked" && "bg-[#383838] rounded-lg px-5 py-2"
-            }  rounded-lg px-5 py-2 font-semibold`}
-          >
-            Booked
-          </button>
+        <div className="flex gap-4">
+          {Object.values(TABLE_STATUS).map((value) => (
+            <button
+              key={value}
+              onClick={() => handleStatusChange(value)}
+              className={`text-[#ababab] text-lg px-5 py-2 font-semibold rounded-lg ${
+                status === value ? "bg-[#383838]" : ""
+              }`}
+            >
+              {value === "all" ? "All" : value}
+            </button>
+          ))}
         </div>
       </div>
 

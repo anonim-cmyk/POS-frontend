@@ -8,6 +8,7 @@ import CategoryModal from "../components/dashboard/CategoryModal";
 import CategoryTable from "../components/dashboard/CategoryTable";
 import TableTable from "../components/dashboard/TableTable";
 import PaymentTable from "../components/dashboard/PaymentTable";
+import { useSearchParams } from "react-router-dom";
 
 const buttons = [
   // { label: "Add Table", icon: <GrTableAdd />, action: "table" },
@@ -24,7 +25,10 @@ const tabs = [
 ];
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("Metrics");
+  // const [activeTab, setActiveTab] = useState("Metrics");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "metrics";
+
   const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -37,6 +41,17 @@ const Dashboard = () => {
   //   if (action === "category") setIsCategoryModalOpen(true);
   //   if (action === "dishes") setIsDishesModalOpen(true);
   // };
+
+  const TAB_WITH_PAGINATION = ["orders", "payments", "dishes"];
+  const handleTabChange = (tab) => {
+    const lowerTab = tab.toLowerCase();
+    const params = { tab: lowerTab };
+    if (TAB_WITH_PAGINATION.includes(lowerTab)) {
+      params.page = "1";
+    }
+
+    setSearchParams(params);
+  };
 
   return (
     <div className="bg-[#1f1f1f] min-h-screen">
@@ -57,9 +72,9 @@ const Dashboard = () => {
             {tabs.slice(0, 3).map((item) => (
               <button
                 key={item}
-                onClick={() => setActiveTab(item)}
+                onClick={() => handleTabChange(item)}
                 className={`px-6 py-2 rounded-lg text-white font-semibold text-lg ${
-                  activeTab === item
+                  activeTab === item.toLowerCase()
                     ? "bg-[#262626]"
                     : "bg-[#1a1a1a] hover:bg-[#262626]"
                 }`}
@@ -72,9 +87,9 @@ const Dashboard = () => {
             {tabs.slice(3, 6).map((item) => (
               <button
                 key={item}
-                onClick={() => setActiveTab(item)}
+                onClick={() => handleTabChange(item)}
                 className={`px-6 py-2 rounded-lg text-white font-semibold text-lg ${
-                  activeTab === item
+                  activeTab === item.toLowerCase()
                     ? "bg-[#262626]"
                     : "bg-[#1a1a1a] hover:bg-[#262626]"
                 }`}
@@ -87,10 +102,10 @@ const Dashboard = () => {
       </div>
 
       {/* Tabs */}
-      {activeTab === "Metrics" && <Metrics />}
-      {activeTab === "Orders" && <RecentOrders />}
-      {activeTab === "Payments" && <PaymentTable />}
-      {activeTab === "Dishes" && (
+      {activeTab === "metrics" && <Metrics />}
+      {activeTab === "orders" && <RecentOrders />}
+      {activeTab === "payments" && <PaymentTable />}
+      {activeTab === "dishes" && (
         <DishTable
           onAdd={() => setIsDishesModalOpen(true)}
           onEdit={(dish) => {
@@ -99,7 +114,7 @@ const Dashboard = () => {
           }}
         />
       )}
-      {activeTab === "Categories" && (
+      {activeTab === "categories" && (
         <CategoryTable
           onAdd={() => setIsCategoryModalOpen(true)}
           onEdit={(category) => {
@@ -108,7 +123,7 @@ const Dashboard = () => {
           }}
         />
       )}
-      {activeTab === "Tables" && (
+      {activeTab === "tables" && (
         <TableTable
           onAdd={() => setIsTableModalOpen(true)}
           onEdit={(table) => {

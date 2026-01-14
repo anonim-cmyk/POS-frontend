@@ -2,7 +2,6 @@ import { usePopularDishes } from "../../hooks/usePopularDishes";
 
 const PopularDishes = () => {
   const { data: dishes = [], isLoading, error } = usePopularDishes();
-  console.log("data: ", dishes);
 
   // ✅ Loading
   if (isLoading) {

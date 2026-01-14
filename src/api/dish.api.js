@@ -14,3 +14,8 @@ export const getPopularDishes = async () => {
   const res = await api.get("/api/dishes/popular/list");
   return res.data?.data || res.data || [];
 };
+
+export const getLowStockDishes = async () => {
+  const res = await api.get(`/api/dishes/low-stock?thresold=5`);
+  return res.data.data;
+};

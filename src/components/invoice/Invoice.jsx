@@ -46,137 +46,213 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
   console.log(orderInfo.items);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center overflow-y-auto h-screen items-center">
-      <div className="bg-white p-4 rounded-lg shadow-lg w-[400px]">
-        <div ref={invoiceRef} className="p-4">
-          {/* Header */}
-          <div className="flex justify-center mb-4">
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1.2, opacity: 1 }}
-              transition={{ duration: 0.5, type: "spring", stiffness: 150 }}
-              className="w-12 h-12 border-8 border-green-500 rounded-full flex items-center justify-center shadow-lg bg-green-500"
-            >
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="text-2xl"
-              >
-                <FaCheck className="text-white" />
-              </motion.span>
-            </motion.div>
-          </div>
-
-          <h2 className="text-xl font-bold text-center mb-2">Order Receipt</h2>
-          <p className="text-gray-600 text-center">Thank you for your order!</p>
-
-          {/* Order Info */}
-          <div className="mt-4 border-t pt-4 text-sm text-gray-700">
-            <p>
-              <strong>Invoice ID:</strong> {orderInfo._id || "-"}
-            </p>
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(orderInfo.orderDate || Date.now()).toLocaleString(
-                "id-ID"
-              )}
-            </p>
-            <p>
-              <strong>Name:</strong> {orderInfo.customerDetails?.name || "-"}
-            </p>
-            <p>
-              <strong>Phone:</strong> {orderInfo.customerDetails?.phone || "-"}
-            </p>
-            <p>
-              <strong>Guests:</strong>{" "}
-              {orderInfo.customerDetails?.guests || "-"}
-            </p>
-          </div>
-
-          {/* Items */}
-          <div className="mt-4 border-t pt-4">
-            <h3 className="text-sm font-semibold mb-1">Items Ordered</h3>
-            <ul className="text-sm text-gray-700">
-              {orderInfo.items?.map((item, index) => (
-                <li key={index} className="flex flex-col text-xs">
-                  <div className="flex justify-between items-center">
-                    <span>
-                      {item.name} × {item.quantity}
-                    </span>
-                    <span>{formatCurrency(item.price)}</span>
-                  </div>
-                  <div className="text-gray-500 text-[11px] italic">
-                    Harga satuan: {formatCurrency(item.pricePerQuantity)}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Bills */}
-          <div className="mt-4 border-t pt-4 text-sm">
-            <p>
-              <strong>Subtotal:</strong>{" "}
-              {formatCurrency(orderInfo.bills?.total || 0)}
-            </p>
-            <p>
-              <strong>Tax:</strong> {formatCurrency(orderInfo.bills?.tax || 0)}
-            </p>
-            <p className="text-md font-semibold">
-              <strong>Grand Total:</strong>{" "}
-              {formatCurrency(orderInfo.bills?.totalWithTax || 0)}
-            </p>
-          </div>
-
-          {/* Payment Section */}
-          <div className="mt-4 border-t pt-3 text-xs">
-            <p>
-              <strong>Payment Method:</strong> {orderInfo.paymentMethod || "-"}
-            </p>
-
-            {orderInfo.paymentMethod === "Online" && (
-              <>
-                <p>
-                  <strong>Midtrans Order ID:</strong>{" "}
-                  {orderInfo.paymentData?.order_id || "-"}
-                </p>
-                <p>
-                  <strong>Transaction ID:</strong>{" "}
-                  {orderInfo.paymentData?.transaction_id || "-"}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {orderInfo.paymentData?.transaction_status || "Pending"}
-                </p>
-                <p>
-                  <strong>Payment Type:</strong>{" "}
-                  {orderInfo.paymentData?.payment_type || "-"}
-                </p>
-              </>
-            )}
-
-            {orderInfo.paymentMethod === "Cash" && (
-              <p>
-                <strong>Status:</strong>{" "}
-                {orderInfo.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl w-full max-w-[500px] max-h-[90vh] flex flex-col border border-gray-200">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white rounded-t-2xl">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-green-500 rounded-full flex items-center justify-center bg-green-500 shadow-lg">
+              <FaCheck className="text-white text-lg sm:text-xl" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                Order Receipt
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500">
+                Thank you for your order!
               </p>
-            )}
+            </div>
+          </div>
+          <button
+            onClick={() => setShowInvoice(false)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <FaTimes className="text-gray-500 text-lg sm:text-xl" />
+          </button>
+        </div>
+
+        {/* Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <div ref={invoiceRef}>
+            {/* Order Info */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-blue-500 rounded"></span>
+                Order Information
+              </h3>
+              <div className="space-y-2 text-xs sm:text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Invoice ID:</span>
+                  <span className="font-semibold text-gray-800">
+                    {orderInfo._id || "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date:</span>
+                  <span className="font-semibold text-gray-800">
+                    {new Date(orderInfo.orderDate || Date.now()).toLocaleString(
+                      "id-ID"
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Name:</span>
+                  <span className="font-semibold text-gray-800">
+                    {orderInfo.customerDetails?.name || "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Phone:</span>
+                  <span className="font-semibold text-gray-800">
+                    {orderInfo.customerDetails?.phone || "-"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Guests:</span>
+                  <span className="font-semibold text-gray-800">
+                    {orderInfo.customerDetails?.guests || "-"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-green-500 rounded"></span>
+                Items Ordered
+              </h3>
+              <div className="space-y-3">
+                {orderInfo.items?.map((item, index) => (
+                  <div
+                    key={index}
+                    className="pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="flex-1">
+                        <span className="text-xs sm:text-sm font-medium text-gray-800">
+                          {item.name}
+                        </span>
+                        <span className="text-xs text-gray-500 ml-2">
+                          × {item.quantity}
+                        </span>
+                      </div>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-800 ml-2">
+                        {formatCurrency(item.price)}
+                      </span>
+                    </div>
+                    <div className="text-[10px] sm:text-xs text-gray-500 italic">
+                      @{formatCurrency(item.pricePerQuantity)} per item
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bills */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-purple-500 rounded"></span>
+                Payment Summary
+              </h3>
+              <div className="space-y-2 text-xs sm:text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="font-medium text-gray-800">
+                    {formatCurrency(orderInfo.bills?.total || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Tax (10%):</span>
+                  <span className="font-medium text-gray-800">
+                    {formatCurrency(orderInfo.bills?.tax || 0)}
+                  </span>
+                </div>
+                <div className="pt-2 border-t-2 border-gray-200 flex justify-between">
+                  <span className="font-bold text-gray-800">Grand Total:</span>
+                  <span className="text-base sm:text-lg font-bold text-green-600">
+                    {formatCurrency(orderInfo.bills?.totalWithTax || 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Section */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-orange-500 rounded"></span>
+                Payment Details
+              </h3>
+              <div className="space-y-2 text-xs sm:text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Method:</span>
+                  <span className="font-semibold text-gray-800">
+                    {orderInfo.paymentMethod || "-"}
+                  </span>
+                </div>
+
+                {orderInfo.paymentMethod === "Online" && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Order ID:</span>
+                      <span className="font-mono text-xs text-gray-800">
+                        {orderInfo.paymentData?.order_id || "-"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Transaction ID:</span>
+                      <span className="font-mono text-xs text-gray-800">
+                        {orderInfo.paymentData?.transaction_id || "-"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                        {orderInfo.paymentData?.transaction_status || "Pending"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Payment Type:</span>
+                      <span className="font-semibold text-gray-800 uppercase">
+                        {orderInfo.paymentData?.payment_type || "-"}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {orderInfo.paymentMethod === "Cash" && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        orderInfo.paymentStatus === "Paid"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {orderInfo.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex justify-between mt-4">
+        {/* Footer - Fixed */}
+        <div className="flex gap-3 p-4 sm:p-6 border-t border-gray-200 bg-white rounded-b-2xl">
           <button
             onClick={handlePrint}
-            className="text-blue-500 hover:underline text-xs px-4 py-2 rounded-lg"
+            className="flex-1 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base"
           >
+            <FaPrint className="text-sm sm:text-base" />
             Print Receipt
           </button>
           <button
             onClick={() => setShowInvoice(false)}
-            className="text-red-500 hover:underline text-xs px-4 py-2 rounded-lg"
+            className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base"
           >
+            <FaTimes className="text-sm sm:text-base" />
             Close
           </button>
         </div>

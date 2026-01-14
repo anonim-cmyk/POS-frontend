@@ -20,9 +20,6 @@ export const useCategories = () => {
       enqueueSnackbar("Category deleted successfully!", { variant: "success" });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
-    onError: () => {
-      enqueueSnackbar("Failed to delete category", { variant: "error" });
-    },
   });
 
   return {

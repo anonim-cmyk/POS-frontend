@@ -1,62 +1,76 @@
-import { useState } from "react";
+import { FaClipboardList } from "react-icons/fa";
 import OrdersCard from "../components/orders/OrdersCard";
 import BackButton from "../components/shared/BackButton";
 import BottomNav from "../components/shared/BottomNav";
 import { useOrderDetail } from "../hooks/useOrderDetail";
+import { useSearchParams } from "react-router-dom";
+
+const ORDER_STATUS = {
+  ALL: "all",
+  PROGRESS: "Progress",
+  READY: "Ready",
+  COMPLETED: "Completed",
+};
 
 const Orders = () => {
-  const [status, setStatus] = useState("all");
-  const { orders, meta, isLoading } = useOrderDetail();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = searchParams.get("status") || "all";
+
+  const handleStatusChange = (value) => {
+    if (value === "all") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ status: value });
+    }
+  };
+
+  const { orders } = useOrderDetail({
+    status: status === "all" ? undefined : status,
+  });
 
   return (
-    <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-y-scroll">
-      <div className="mt-4 flex justify-between items-start text-white w-full px-8">
-        <div className="flex items-center justify-center gap-2">
+    <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-y-scroll scrollbar-hide">
+      <div className="mt-4 flex justify-between items-start text-white w-full px-8 flex-wrap">
+        <div className="flex items-center gap-2">
           <BackButton />
-          <h1 className="text-2xl font-poppins text-white font-bold">Orders</h1>
+          <h1 className="text-2xl font-bold">Orders</h1>
         </div>
-        <div className="flex gap-4 items-center justify-around">
-          <button
-            className={`${
-              status === "all" && "bg-[#343434]"
-            } px-4 py-2 rounded-md`}
-            onClick={() => setStatus("all")}
-          >
-            All
-          </button>
-          <button
-            className={`${
-              status === "progress" && "bg-[#343434]"
-            } px-4 py-2 rounded-md`}
-            onClick={() => setStatus("progress")}
-          >
-            In Progress
-          </button>
-          <button
-            className={`${
-              status === "ready" && "bg-[#343434]"
-            } px-4 py-2 rounded-md`}
-            onClick={() => setStatus("ready")}
-          >
-            Ready
-          </button>
-          <button
-            className={`${
-              status === "completed" && "bg-[#343434]"
-            } px-4 py-2 rounded-md`}
-            onClick={() => setStatus("completed")}
-          >
-            Completed
-          </button>
+
+        <div className="flex gap-4">
+          {Object.values(ORDER_STATUS).map((value) => (
+            <button
+              key={value}
+              onClick={() => handleStatusChange(value)}
+              className={`px-4 py-2 rounded-md ${
+                status === value ? "bg-[#343434]" : ""
+              }`}
+            >
+              {value === "all" ? "All" : value}
+            </button>
+          ))}
         </div>
       </div>
-      <div className="flex flex-wrap gap-4 items-center justify-start overflow-y-scroll scrollbar-hide mt-7 px-8">
-        {orders.length > 0 ? (
-          orders.map((order) => <OrdersCard key={order._id} order={order} />)
-        ) : (
-          <p className="col-span-3 text-gray-500">No order available</p>
-        )}
+
+      <div className="px-8 mt-6 pb-32">
+        <div className="flex flex-wrap gap-5 justify-center">
+          {orders.length > 0 ? (
+            orders.map((order) => <OrdersCard key={order._id} order={order} />)
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-20">
+              <div className="bg-[#262626] rounded-full p-8 mb-4">
+                <FaClipboardList className="text-6xl text-gray-600" />
+              </div>
+              <p className="text-xl text-gray-500 font-semibold">
+                No orders available
+              </p>
+              <p className="text-sm text-gray-600 mt-2">
+                Orders will appear here when customers place them
+              </p>
+            </div>
+          )}
+        </div>
       </div>
+
       <BottomNav />
     </section>
   );

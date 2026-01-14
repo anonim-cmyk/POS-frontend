@@ -1,134 +1,33 @@
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { enqueueSnackbar } from "notistack";
-import { addDish, getCategories, updateDish } from "../../api";
+import { useDishForm } from "../../hooks/useDishForm";
 
 const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
-  const queryClient = useQueryClient();
-
-  const [dishData, setDishData] = useState({
-    name: "",
-    price: "",
-    category: "",
-    stock: 0,
-  });
-  const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-
-  // Fetch categories
-  const { data: categoriesRaw, isLoading: catLoading } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await getCategories();
-      return res.data?.data || res.data || [];
-    },
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 10,
-  });
-
-  const categories = Array.isArray(categoriesRaw) ? categoriesRaw : [];
-
-  // Prefill data jika editing
-  useEffect(() => {
-    if (editingDish) {
-      setDishData({
-        name: editingDish.name,
-        price: editingDish.price,
-        category: editingDish.category?._id || editingDish.category || "",
-        stock: editingDish.stock || 0,
-      });
-      setPreview(editingDish.imageUrl || null);
-    }
-  }, [editingDish]);
-
-  // Mutation Add/Update Dish
-  const mutation = useMutation({
-    mutationFn: async (payload) => {
-      if (editingDish?._id) {
-        return updateDish({ dishId: editingDish._id, ...payload });
-      }
-      return addDish(payload);
-    },
-    onSuccess: () => {
-      enqueueSnackbar(
-        editingDish ? "Dish updated successfully" : "Dish added successfully",
-        { variant: "success" }
-      );
-      queryClient.invalidateQueries(["dishes"]);
-      setIsDishesModalOpen(false);
-      setEditingDish(null);
-    },
-    onError: () => {
-      enqueueSnackbar("Failed to save dish", { variant: "error" });
-    },
-  });
-
-  // Handle image preview
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
-
-  // Submit handler
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!dishData.name || !dishData.price || !dishData.category) {
-      enqueueSnackbar("Name, price, and category are required", {
-        variant: "warning",
-      });
-      return;
-    }
-
-    try {
-      let imageUrl = preview;
-
-      if (imageFile) {
-        const formDataCloud = new FormData();
-        formDataCloud.append("file", imageFile);
-        formDataCloud.append("upload_preset", "dishes");
-
-        const res = await fetch(
-          "https://api.cloudinary.com/v1_1/dsszoqt88/image/upload",
-          { method: "POST", body: formDataCloud }
-        );
-        const data = await res.json();
-        imageUrl = data.secure_url;
-      }
-
-      const payload = {
-        name: dishData.name,
-        price: Number(dishData.price),
-        stock: Number(dishData.stock),
-        category:
-          typeof dishData.category === "object"
-            ? dishData.category._id
-            : dishData.category,
-        imageUrl,
-      };
-
-      mutation.mutate(payload);
-    } catch (err) {
-      enqueueSnackbar("Image upload failed", { variant: "error" });
-      console.error(err);
-    }
-  };
-
   const handleClose = () => {
     setIsDishesModalOpen(false);
     setEditingDish(null);
-    setDishData({ name: "", price: "", category: "", stock: 0 });
-    setImageFile(null);
-    setPreview(null);
+    // setDishData({ name: "", price: "", category: "", stock: 0 });
+    // setImageFile(null);
+    // setPreview(null);
   };
 
-  if (catLoading)
+  const {
+    dishData,
+    categories,
+    preview,
+    isLoading,
+    isSubmitting,
+    handleChange,
+    handleImageChange,
+    handleSubmit,
+  } = useDishForm({
+    editingDish,
+    onSuccessClose: handleClose,
+  });
+
+  if (isLoading) {
     return <p className="text-white p-6">Loading categories...</p>;
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -157,7 +56,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
             placeholder="Dish name"
             className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.name}
-            onChange={(e) => setDishData({ ...dishData, name: e.target.value })}
+            onChange={(e) => handleChange("name", e.target.value)}
             required
           />
           <input
@@ -165,9 +64,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
             placeholder="Price"
             className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.price}
-            onChange={(e) =>
-              setDishData({ ...dishData, price: e.target.value })
-            }
+            onChange={(e) => handleChange("price", e.target.value)}
             required
           />
           <input
@@ -175,9 +72,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
             placeholder="Stock"
             className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.stock}
-            onChange={(e) =>
-              setDishData({ ...dishData, stock: Number(e.target.value) })
-            }
+            onChange={(e) => handleChange("stock", e.target.value)}
             required
           />
 
@@ -201,9 +96,7 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
           <select
             className="w-full p-2 rounded bg-[#1f1f1f] text-white outline-none"
             value={dishData.category}
-            onChange={(e) =>
-              setDishData({ ...dishData, category: e.target.value })
-            }
+            onChange={(e) => handleChange("category", e.target.value)}
             required
           >
             <option value="">Select Category</option>

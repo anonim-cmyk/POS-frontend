@@ -6,6 +6,7 @@ import BottomNav from "../components/shared/BottomNav";
 import { BsCashCoin } from "react-icons/bs";
 import { GrInProgress } from "react-icons/gr";
 import { useOrderDetail } from "../hooks/useOrderDetail";
+import { formatRupiah } from "../utils";
 
 const Home = () => {
   const { orders, isLoading } = useOrderDetail({ page: 1, limit: 1000 });
@@ -17,14 +18,6 @@ const Home = () => {
 
   // ✅ Hitung order sedang diproses
   const inProgress = orders.filter((o) => o.orderStatus !== "Completed").length;
-
-  // ✅ Format Rupiah
-  const formatRupiah = (value) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(value);
 
   return (
     <>

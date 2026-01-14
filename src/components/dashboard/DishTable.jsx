@@ -1,18 +1,14 @@
 import { BiEdit, BiTrash } from "react-icons/bi";
 import FullScreenLoader from "../shared/FullScreenLoader";
 import { useDishes } from "../../hooks/useDishes";
-import { useState } from "react";
+import { usePaginationParams } from "../../hooks/usePaginationParams";
 
 const DishTable = ({ onAdd, onEdit }) => {
-  const [page, setPage] = useState(1);
-  const limit = 10;
-
+  const { page, setPage } = usePaginationParams();
   const { dishes, meta, isLoading, deleteDish } = useDishes({
     page,
     limit: 10,
   });
-
-  console.log("dishes: ", dishes);
 
   if (isLoading) return <FullScreenLoader />;
 
@@ -90,21 +86,38 @@ const DishTable = ({ onAdd, onEdit }) => {
         </tbody>
       </table>
 
+      {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
-          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          onClick={() => setPage(page - 1)}
           disabled={page === 1}
           className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
         >
           Prev
         </button>
 
-        <span>
-          {page} / {meta?.totalPages || 1}
-        </span>
+        {[...Array(meta?.totalPages || 1)].map((_, i) => {
+          const p = i + 1;
+          const isActive = p === page;
+
+          return (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              disabled={isActive}
+              className={`px-3 py-1 rounded transition ${
+                isActive
+                  ? "bg-blue-600 text-white font-semibold cursor-default"
+                  : "bg-gray-700 hover:bg-gray-600 text-gray-200"
+              }`}
+            >
+              {p}
+            </button>
+          );
+        })}
 
         <button
-          onClick={() => setPage((p) => Math.min(p + 1, meta?.totalPages || 1))}
+          onClick={() => setPage(page + 1)}
           disabled={page === meta?.totalPages}
           className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
         >

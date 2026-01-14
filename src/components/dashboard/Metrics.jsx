@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import FullScreenLoader from "../shared/FullScreenLoader";
 import { useState } from "react";
 import { getDashboardMetrics } from "../../api/dashboard.api";
+import { formatRupiah } from "../../utils";
 
 const Metrics = () => {
   const [filter, setFilter] = useState("30d");
@@ -20,7 +21,7 @@ const Metrics = () => {
   const metricsData = [
     {
       title: "Total Revenue",
-      value: `Rp ${(metrics.totalRevenue || 0).toLocaleString()}`,
+      value: `${formatRupiah(metrics.totalRevenue)}`,
       color: "#4c51bf",
       isIncrease: (metrics.revenueGrowth || 0) >= 0,
       percentage: `${metrics.revenueGrowth || 0}%`,

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { buildOrderPayload, calculateTax } from "../utils/order.utils";
 import { processPayment } from "../service/payment.service";
@@ -10,6 +10,9 @@ export const useOrder = ({ cartData, customerData, total }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderInfo, setOrderInfo] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
+
+  const queryClient = useQueryClient();
+
   const isLockedRef = useRef(false);
 
   const tax = calculateTax(total);
@@ -69,6 +72,10 @@ export const useOrder = ({ cartData, customerData, total }) => {
           status: "Booked",
           orderId: order._id,
         });
+
+        queryClient.invalidateQueries({ queryKey: ["tables"] });
+        queryClient.invalidateQueries({ queryKey: ["dishes"] });
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
       } catch (err) {
         console.error("Update table failed", err);
       }

@@ -2,26 +2,26 @@ import { formatDateAndTime } from "../../utils";
 import { enqueueSnackbar } from "notistack";
 import { useOrderDetail } from "../../hooks/useOrderDetail";
 import { useUpdateOrderStatus } from "../../hooks/useUpdateOrderStatus";
-import { useState } from "react";
+import { useTableFilters } from "../../hooks/useTableFilters";
 
 const RecentOrders = () => {
-  const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("");
-  const [periodFilter, setPeriodFilter] = useState("");
-  const limit = 10;
+  const {
+    page,
+    setPage,
+    filters: { status, period },
+    setFilter,
+  } = useTableFilters(["status", "period"]);
 
   // ✅ Mutation untuk update order status
   const updateStatus = useUpdateOrderStatus();
 
   // ✅ Fetch orders dengan filter dinamis
   const { orders, meta, isLoading } = useOrderDetail({
-    status: statusFilter || undefined,
-    period: periodFilter || undefined,
+    status: status || undefined,
+    period: period || undefined,
     page,
     limit: 10,
   });
-
-  console.log("📋 Parsed orders:", orders);
 
   // ✅ Loading state
   if (isLoading) {
@@ -58,11 +58,8 @@ const RecentOrders = () => {
         </h2>
         <div className="flex gap-3">
           <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
+            value={status}
+            onChange={(e) => setFilter("status", e.target.value)}
             className="bg-gray-800 text-white px-3 py-2 rounded-lg"
           >
             <option value="">All Status</option>
@@ -72,11 +69,8 @@ const RecentOrders = () => {
           </select>
 
           <select
-            value={periodFilter}
-            onChange={(e) => {
-              setPeriodFilter(e.target.value);
-              setPage(1);
-            }}
+            value={period}
+            onChange={(e) => setFilter("period", e.target.value)}
             className="bg-gray-800 text-white px-3 py-2 rounded-lg"
           >
             <option value="">All Time</option>
