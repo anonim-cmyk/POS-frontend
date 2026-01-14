@@ -1,23 +1,22 @@
 const MiniCard = ({ title, icon, number, footerNum }) => {
   return (
-    <div className="bg-[#1a1a1a] py-5 px-5 rounded-lg w-[50%]">
-      <div className="flex items-start justify-between">
-        <h1 className="text-lg font-poppins font-semibold text-white">
+    <div className="bg-[#2a2a2a] rounded-2xl p-4 sm:p-5 lg:p-6 flex-1 shadow-lg hover:shadow-xl border border-[#3a3a3a]">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wide">
           {title}
-        </h1>
-        <button
-          className={`${
-            title === "Total Earnings" ? "bg-[#02ca3a]" : "bg-[#f6b100]"
-          } text-2xl p-3 rounded-lg`}
-        >
+        </span>
+        <div className="text-xl sm:text-2xl text-emerald-500 bg-emerald-500/10 p-2 sm:p-3 rounded-xl">
           {icon}
-        </button>
+        </div>
       </div>
-      <div>
-        <h1 className="text-4xl text-white font-bold mt-3">{number}</h1>
-        <h1 className="text-xl text-white font-semibold mt-2">
-          <span className="text-green-400">{footerNum}%</span> Than Yesterday
-        </h1>
+      <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">
+        {number}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-emerald-500 text-xs sm:text-sm font-semibold bg-emerald-500/10 px-2 py-1 rounded-lg">
+          +{footerNum}%
+        </span>
+        <span className="text-gray-500 text-xs">vs last month</span>
       </div>
     </div>
   );

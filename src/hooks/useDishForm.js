@@ -97,6 +97,7 @@ export const useDishForm = ({ editingDish, onSuccessClose }) => {
       );
 
       queryClient.invalidateQueries({ queryKey: ["dishes"] });
+      queryClient.invalidateQueries({ queryKey: ["low-stock-dishes"] });
       resetForm();
       onSuccessClose();
     },

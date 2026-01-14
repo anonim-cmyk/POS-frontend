@@ -21,27 +21,39 @@ const Home = () => {
 
   return (
     <>
-      <section className="bg-[#1f1f1f] min-h-screen flex gap-3 pb-20">
-        <div className="flex-[3] h-full overflow-y-auto scrollbar-hide">
-          <Greetings />
-          <div className="flex items-center w-full gap-3 px-8 mt-8">
-            <MiniCard
-              title="Total Earnings"
-              icon={<BsCashCoin />}
-              number={formatRupiah(totalEarnings)}
-              footerNum={1.6}
-            />
-            <MiniCard
-              title="In Progress"
-              icon={<GrInProgress />}
-              number={inProgress}
-              footerNum={2.4}
-            />
+      <section className="bg-[#1f1f1f] min-h-screen">
+        {/* Container dengan max-width untuk layar besar */}
+        <div className="max-w-[1600px] mx-auto">
+          {/* Flex container yang responsive */}
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 pb-20 lg:pb-8">
+            {/* Left Section - Main Content */}
+            <div className="flex-1 lg:flex-[3] w-full overflow-y-auto scrollbar-hide">
+              <Greetings />
+
+              {/* Cards Grid - Stack on mobile, row on tablet+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+                <MiniCard
+                  title="Total Earnings"
+                  icon={<BsCashCoin />}
+                  number={formatRupiah(totalEarnings)}
+                  footerNum={1.6}
+                />
+                <MiniCard
+                  title="In Progress"
+                  icon={<GrInProgress />}
+                  number={inProgress}
+                  footerNum={2.4}
+                />
+              </div>
+
+              <RecentOrders />
+            </div>
+
+            {/* Right Section - Popular Dishes */}
+            <div className="w-full lg:w-auto lg:flex-[2] lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto scrollbar-hide">
+              <PopularDishes />
+            </div>
           </div>
-          <RecentOrders />
-        </div>
-        <div className="flex-[2] h-[calc(100vh-5rem)] overflow-y-auto scrollbar-hide">
-          <PopularDishes />
         </div>
       </section>
       <BottomNav />

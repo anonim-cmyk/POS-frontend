@@ -36,7 +36,7 @@ const Orders = () => {
           <h1 className="text-2xl font-bold">Orders</h1>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-2 bg-[#2a2a2a] p-1.5 rounded-xl shadow-inner">
           {Object.values(ORDER_STATUS).map((value) => (
             <button
               key={value}
@@ -52,7 +52,7 @@ const Orders = () => {
       </div>
 
       <div className="px-8 mt-6 pb-32">
-        <div className="flex flex-wrap gap-5 justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {orders.length > 0 ? (
             orders.map((order) => <OrdersCard key={order._id} order={order} />)
           ) : (

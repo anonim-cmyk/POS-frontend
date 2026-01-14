@@ -30,7 +30,7 @@ const PopularDishes = () => {
   }
 
   return (
-    <div className="mt-5 pr-6">
+    <div className="mt-5 pr-6 border">
       <div className="bg-[#1a1a1a] w-full rounded-lg">
         <div className="flex justify-between items-center px-6 py-4">
           <h1 className="text-[#f5f5f5] text-lg font-semibold tracking-wide">
@@ -41,7 +41,7 @@ const PopularDishes = () => {
           </a>
         </div>
 
-        <div className="overflow-y-scroll h-[680px] scrollbar-hide">
+        <div className="overflow-y-scroll h-[680px] scrollbar-hide pb-12">
           {dishes.length === 0 ? (
             <p className="text-white/60 text-center py-8">No popular dishes</p>
           ) : (
