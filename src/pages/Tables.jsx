@@ -5,21 +5,17 @@ import BackButton from "../components/shared/BackButton";
 import { useTables } from "../hooks/useTables";
 import TablesCard from "../components/tables/TablesCard";
 import FullScreenLoader from "../components/shared/FullScreenLoader";
+import { usePaymentRedirect } from "../hooks/usePaymentRedirect";
 
-const TABLE_STATUS = {
+const TABLE_FILTERS = {
   ALL: "all",
   BOOKED: "Booked",
 };
 
 const Tables = () => {
   const { tables, isLoading } = useTables();
-  console.log("tables: ", tables);
 
-  const [paymentInfo, setPaymentInfo] = useState(null);
-
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const status = searchParams.get("status") || "all";
+  const paymentInfo = usePaymentRedirect();
 
   const handleStatusChange = (value) => {
     if (value === "all") {
@@ -28,16 +24,6 @@ const Tables = () => {
       setSearchParams({ status: value });
     }
   };
-
-  useEffect(() => {
-    const orderId = searchParams.get("order_id");
-    const transactionStatus = searchParams.get("transaction_status");
-
-    if (orderId && transactionStatus) {
-      setPaymentInfo({ orderId, transactionStatus });
-      navigate("/tables", { replace: true });
-    }
-  }, [searchParams, navigate]);
 
   if (isLoading) return <FullScreenLoader />;
 
@@ -70,7 +56,7 @@ const Tables = () => {
 
             {/* Filter Buttons */}
             <div className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide">
-              {Object.entries(TABLE_STATUS).map(([key, value]) => (
+              {Object.entries(TABLE_FILTERS).map(([key, value]) => (
                 <button
                   key={value}
                   onClick={() => handleStatusChange(value)}
