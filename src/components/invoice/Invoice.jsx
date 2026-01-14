@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { FaCheck } from "react-icons/fa6";
+import { FaPrint, FaTimes } from "react-icons/fa";
 
 const Invoice = ({ orderInfo, setShowInvoice }) => {
   console.log("order info", orderInfo);
