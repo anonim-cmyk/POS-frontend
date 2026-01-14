@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import BottomNav from "../components/shared/BottomNav";
 import BackButton from "../components/shared/BackButton";
 import { useTables } from "../hooks/useTables";
@@ -14,8 +14,10 @@ const TABLE_FILTERS = {
 
 const Tables = () => {
   const { tables, isLoading } = useTables();
-
   const paymentInfo = usePaymentRedirect();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = searchParams.get("status") || "all";
 
   const handleStatusChange = (value) => {
     if (value === "all") {
@@ -25,15 +27,19 @@ const Tables = () => {
     }
   };
 
-  if (isLoading) return <FullScreenLoader />;
-
   const filteredTables =
     status === "all"
       ? tables
       : tables.filter((table) => table.status === status);
 
-  const bookedCount = tables.filter((t) => t.status === "Booked").length;
-  const availableCount = tables.filter((t) => t.status === "Available").length;
+  const { bookedCount, availableCount } = useMemo(() => {
+    return {
+      bookedCount: tables.filter((t) => t.status === "Booked").length,
+      availableCount: tables.filter((t) => t.status === "Available").length,
+    };
+  }, [tables]);
+
+  if (isLoading) return <FullScreenLoader />;
 
   return (
     <section className="bg-[#1f1f1f] min-h-screen pb-20 lg:pb-8">
