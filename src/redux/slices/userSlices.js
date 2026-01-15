@@ -7,6 +7,7 @@ const initialState = {
   phone: "",
   role: "",
   isAuth: false,
+  authChecked: false,
 };
 
 const userSlice = createSlice({
@@ -21,6 +22,7 @@ const userSlice = createSlice({
       state.phone = phone;
       state.role = role;
       state.isAuth = true;
+      state.authChecked = true;
     },
     removeUser: (state) => {
       state.userId = "";
@@ -29,6 +31,7 @@ const userSlice = createSlice({
       state.phone = "";
       state.role = "";
       state.isAuth = false;
+      state.authChecked = true;
     },
   },
 });

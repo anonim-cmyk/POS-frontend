@@ -2,15 +2,19 @@ import { BiEdit, BiTrash } from "react-icons/bi";
 import FullScreenLoader from "../shared/FullScreenLoader";
 import { useDishes } from "../../hooks/useDishes";
 import { usePaginationParams } from "../../hooks/usePaginationParams";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const DishTable = ({ onAdd, onEdit }) => {
-  const { page, setPage } = usePaginationParams();
+  const { page, setPage, search } = usePaginationParams();
+
+  const debouncedSearch = useDebounce(search, 400);
   const { dishes, meta, isLoading, deleteDish } = useDishes({
     page,
     limit: 10,
+    search: debouncedSearch,
   });
 
-  if (isLoading) return <FullScreenLoader />;
+  if (isLoading && !dishes.length) return <FullScreenLoader />;
 
   return (
     <div className="mx-6">

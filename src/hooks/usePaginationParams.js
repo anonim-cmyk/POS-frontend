@@ -5,6 +5,7 @@ export const usePaginationParams = (defaultPage = 1) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = parseInt(searchParams.get("page") || String(defaultPage), 10);
+  const search = searchParams.get("search") || "";
 
   const setPage = (updater) => {
     setSearchParams((prev) => {
@@ -78,6 +79,7 @@ export const usePaginationParams = (defaultPage = 1) => {
     setFilter,
     setMultipleFilters,
     clearFilters,
+    search,
     searchParams, // Untuk akses langsung jika perlu
   };
 };

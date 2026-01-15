@@ -4,7 +4,6 @@ import { useOrderDetail } from "../../hooks/useOrderDetail";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "../../redux/slices/searchSlice";
 import { useDebounce } from "../../hooks/useDebounce";
-import { useMemo } from "react";
 
 const RecentOrders = () => {
   const dispatch = useDispatch();

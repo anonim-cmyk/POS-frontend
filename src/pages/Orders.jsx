@@ -4,6 +4,8 @@ import BackButton from "../components/shared/BackButton";
 import BottomNav from "../components/shared/BottomNav";
 import { useOrderDetail } from "../hooks/useOrderDetail";
 import { useSearchParams } from "react-router-dom";
+import { useDebounce } from "../hooks/useDebounce";
+import { useDispatch, useSelector } from "react-redux";
 
 const ORDER_STATUS = {
   ALL: "all",
@@ -14,18 +16,29 @@ const ORDER_STATUS = {
 
 const Orders = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "all";
 
+  const debouncedSearch = useDebounce(search, 400);
+
   const handleStatusChange = (value) => {
-    if (value === "all") {
-      setSearchParams({});
-    } else {
-      setSearchParams({ status: value });
-    }
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      if (value === "all") {
+        params.delete("status");
+      } else {
+        params.set("status", value);
+      }
+
+      return params;
+    });
   };
 
   const { orders } = useOrderDetail({
     status: status === "all" ? undefined : status,
+    search: debouncedSearch,
   });
 
   return (

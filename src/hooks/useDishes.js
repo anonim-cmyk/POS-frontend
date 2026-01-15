@@ -2,13 +2,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteDish, getDishes } from "../api";
 import { enqueueSnackbar } from "notistack";
 
-export const useDishes = ({ page = 1, limit = 10, all = false } = {}) => {
+export const useDishes = ({
+  page = 1,
+  limit = 10,
+  all = false,
+  search,
+} = {}) => {
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: all ? ["dishes", "all"] : ["dishes", page, limit],
-    queryFn: () => getDishes({ page, limit: all ? 1000 : limit }),
+  const { data, isLoading, isError, isFetching } = useQuery({
+    queryKey: all ? ["dishes", "all"] : ["dishes", { page, limit, search }],
+    queryFn: () => getDishes({ page, limit: all ? 1000 : limit, search }),
     keepPreviousData: true,
+    staleTime: 5000,
     select: (res) => res.data,
   });
 
@@ -29,5 +35,6 @@ export const useDishes = ({ page = 1, limit = 10, all = false } = {}) => {
     isLoading,
     isError,
     deleteDish: deleteMutation.mutate,
+    isFetching,
   };
 };

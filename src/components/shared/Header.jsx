@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
 import { removeUser } from "../../redux/slices/userSlices";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
 import { logout } from "../../api/auth.api";
 import { useLowStockNotifications } from "../../hooks/useLowStockNotification";
@@ -22,11 +22,14 @@ const Badge = ({ count }) => (
 );
 
 const Header = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const dispatch = useDispatch();
+
   const [open, setOpen] = useState(false);
 
   const userData = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-  const searchTerm = useSelector((state) => state.search.term);
+
+  const search = searchParams.get("search") || "";
 
   const navigate = useNavigate();
 
@@ -60,8 +63,14 @@ const Header = () => {
         <input
           type="text"
           placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => dispatch(setSearchTerm(e.target.value))}
+          value={search}
+          onChange={(e) =>
+            setSearchParams((prev) => {
+              const params = new URLSearchParams(prev);
+              params.set("search", e.target.value);
+              return params;
+            })
+          }
           className="bg-[#1f1f1f] text-[#f5f5f5] px-2 py-1 rounded-md outline-none"
         />
       </div>
