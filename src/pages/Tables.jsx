@@ -6,6 +6,7 @@ import { useTables } from "../hooks/useTables";
 import TablesCard from "../components/tables/TablesCard";
 import FullScreenLoader from "../components/shared/FullScreenLoader";
 import { usePaymentRedirect } from "../hooks/usePaymentRedirect";
+import { FaUtensils } from "react-icons/fa";
 
 const TABLE_FILTERS = {
   ALL: "all",

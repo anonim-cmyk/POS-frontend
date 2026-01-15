@@ -10,6 +10,7 @@ export const useUpdateOrderStatus = () => {
     onSuccess: () => {
       enqueueSnackbar("Order updated", { variant: "success" });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["tables"] });
     },
   });
 };

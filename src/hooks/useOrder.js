@@ -23,6 +23,8 @@ export const useOrder = ({ cartData, customerData, total }) => {
   });
 
   const placeOrder = async (paymentMethod) => {
+    console.log("paymentMethod: ", paymentMethod);
+
     if (isLockedRef.current || !cartData.length) return;
 
     isLockedRef.current = true;

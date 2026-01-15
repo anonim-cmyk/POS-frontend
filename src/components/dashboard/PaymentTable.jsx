@@ -134,8 +134,8 @@ const PaymentTable = () => {
       {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
-          onClick={() => setPage(page - 1)}
-          disabled={page === 1}
+          onClick={() => setPage((p) => p - 1)}
+          disabled={page <= totalPages}
           className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
         >
           Prev
@@ -161,8 +161,8 @@ const PaymentTable = () => {
         })}
 
         <button
-          onClick={() => setPage(page + 1)}
-          disabled={page === totalPages}
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page > totalPages}
           className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
         >
           Next

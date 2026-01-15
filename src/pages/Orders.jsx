@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 
 const ORDER_STATUS = {
   ALL: "all",
-  PROGRESS: "Progress",
+  PROGRESS: "In Progress",
   READY: "Ready",
   COMPLETED: "Completed",
 };

@@ -6,10 +6,18 @@ export const usePaginationParams = (defaultPage = 1) => {
 
   const page = parseInt(searchParams.get("page") || String(defaultPage), 10);
 
-  const setPage = (newPage) => {
+  const setPage = (updater) => {
     setSearchParams((prev) => {
+      const currentPage = parseInt(prev.get("page") || "1", 10);
+
+      const nextPage =
+        typeof updater === "function" ? updater(currentPage) : updater;
+
+      if (nextPage === currentPage) return prev;
+      if (nextPage < 1) return prev;
+
       const next = new URLSearchParams(prev);
-      next.set("page", newPage.toString());
+      next.set("page", String(nextPage));
       return next;
     });
   };
@@ -19,6 +27,11 @@ export const usePaginationParams = (defaultPage = 1) => {
   const setFilter = (key, value) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
+      const prevValue = prev.get(key) || "";
+
+      if (prevValue === String(value || "")) {
+        return prev;
+      }
 
       if (value) {
         next.set(key, value);

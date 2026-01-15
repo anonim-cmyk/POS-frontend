@@ -6,10 +6,11 @@ export const useOrderDetail = ({
   period,
   page = 1,
   limit = 10,
+  search,
 } = {}) => {
   const query = useQuery({
-    queryKey: ["orders", { status, period, page, limit }],
-    queryFn: () => getOrders({ status, period, page, limit }),
+    queryKey: ["orders", { status, period, search, page, limit }],
+    queryFn: () => getOrders({ status, period, search, page, limit }),
     keepPreviousData: true,
     select: (res) => res.data,
   });

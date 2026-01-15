@@ -12,6 +12,8 @@ import { MdDashboard } from "react-icons/md";
 import { logout } from "../../api/auth.api";
 import { useLowStockNotifications } from "../../hooks/useLowStockNotification";
 import { useState } from "react";
+import { BiRestaurant } from "react-icons/bi";
+import { setSearchTerm } from "../../redux/slices/searchSlice";
 
 const Badge = ({ count }) => (
   <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-red-500 text-xs text-white rounded-full flex items-center justify-center">
@@ -24,6 +26,8 @@ const Header = () => {
 
   const userData = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const searchTerm = useSelector((state) => state.search.term);
+
   const navigate = useNavigate();
 
   const { lowStockItems, count } = useLowStockNotifications();
@@ -48,7 +52,7 @@ const Header = () => {
     <header className="bg-[#1a1a1a] px-8 py-4 text-white font-poppins flex items-center justify-between">
       {/* Nanti disini Logo */}
       <div onClick={() => navigate("/")} className="hover:cursor-pointer">
-        <h3>L O G O</h3>
+        <BiRestaurant size={32} />
       </div>
       {/* Disini Search */}
       <div className="flex items-center gap-2 w-[500px] bg-[#1f1f1f] rounded-md px-5 py-2">
@@ -56,6 +60,8 @@ const Header = () => {
         <input
           type="text"
           placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => dispatch(setSearchTerm(e.target.value))}
           className="bg-[#1f1f1f] text-[#f5f5f5] px-2 py-1 rounded-md outline-none"
         />
       </div>

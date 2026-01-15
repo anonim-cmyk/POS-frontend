@@ -3,20 +3,25 @@ import FullScreenLoader from "../shared/FullScreenLoader";
 import { useState } from "react";
 import { getDashboardMetrics } from "../../api/dashboard.api";
 import { formatRupiah } from "../../utils";
+import { useSearchParams } from "react-router-dom";
 
 const Metrics = () => {
-  const [filter, setFilter] = useState("30d");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = searchParams.get("range") || "30d";
 
-  const { data, isLoading, error } = useQuery({
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["dashboard-metrics", filter],
     queryFn: () => getDashboardMetrics(filter),
+    keepPreviousData: true,
   });
   if (isLoading) return <FullScreenLoader />;
   if (error) return <p className="text-red-500">Failed to load</p>;
 
-  const res = data?.data?.data;
-  const metrics = res?.metrics || {};
-  const items = res?.items || {};
+  const { metrics = {}, items = {} } = response?.data.data || {};
 
   const metricsData = [
     {
@@ -78,7 +83,9 @@ const Metrics = () => {
 
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) =>
+            setSearchParams({ tab: "metrics", range: e.target.value })
+          }
           className="px-4 py-2 rounded-md bg-[#1a1a1a] text-white"
         >
           <option value="7d">Last 7 Days</option>

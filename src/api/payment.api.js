@@ -6,6 +6,10 @@ export const createOrderMidtrans = (data) =>
 export const verifyPaymentMidtrans = (data) =>
   api.post("/api/payment/verify-payment", data);
 
+export const createCashPayment = (data) => {
+  api.post(`/api/payment/cash`, data);
+};
+
 export const getPayments = async ({
   page = 1,
   limit = 10,
