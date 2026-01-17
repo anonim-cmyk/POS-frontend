@@ -7,6 +7,8 @@ import { removeItem } from "../../redux/slices/cartSlices";
 const CartInfo = () => {
   const scrolLRef = useRef();
   const cartData = useSelector((state) => state.cart);
+  console.log("cartData: ", cartData);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -50,7 +52,7 @@ const CartInfo = () => {
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex items-center gap-3">
                     <RiDeleteBin2Fill
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => handleRemove(item.dishId)}
                       className="text-[#ababab] cursor-pointer"
                       size={20}
                     />

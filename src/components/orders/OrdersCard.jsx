@@ -1,4 +1,4 @@
-import { formatDateAndTime, getAvatarName } from "../../utils";
+import { formatDateAndTime, formatRupiah, getAvatarName } from "../../utils";
 import { FaCheckDouble, FaCircle, FaLongArrowAltRight } from "react-icons/fa";
 
 const STATUS_CONFIG = {
@@ -118,11 +118,7 @@ const OrdersCard = ({ order }) => {
           Total Amount
         </h1>
         <p className="text-xl font-bold text-[#f6b100] font-poppins">
-          {new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(order.bills.totalWithTax)}
+          {formatRupiah(order.bills.totalWithTax)}
         </p>
       </div>
     </section>

@@ -4,11 +4,14 @@ import { useOrderDetail } from "../../hooks/useOrderDetail";
 import { useDispatch, useSelector } from "react-redux";
 import { setSearchTerm } from "../../redux/slices/searchSlice";
 import { useDebounce } from "../../hooks/useDebounce";
+import { useSearchParams } from "react-router-dom";
 
 const RecentOrders = () => {
-  const dispatch = useDispatch();
-  const searchTerm = useSelector((state) => state.search.term);
-  const debouncedSearchTerm = useDebounce(searchTerm, 400);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get("search") || "";
+
+  const debouncedSearchTerm = useDebounce(search, 400);
 
   const { orders, meta, isLoading } = useOrderDetail({
     search: debouncedSearchTerm,
@@ -29,8 +32,14 @@ const RecentOrders = () => {
           <CiSearch size={32} />
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => dispatch(setSearchTerm(e.target.value))}
+            value={search}
+            onChange={(e) =>
+              setSearchParams((prev) => {
+                const params = new URLSearchParams(prev);
+                params.set("search", e.target.value);
+                return params;
+              })
+            }
             placeholder="Search..."
             className="bg-[#1f1f1f] text-[#f5f5f5] px-2 py-1 rounded-md outline-none"
           />

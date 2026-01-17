@@ -1,4 +1,4 @@
-import { formatDateAndTime } from "../../utils";
+import { formatDateAndTime, formatRupiah } from "../../utils";
 import { enqueueSnackbar } from "notistack";
 import { useOrderDetail } from "../../hooks/useOrderDetail";
 import { useUpdateOrderStatus } from "../../hooks/useUpdateOrderStatus";
@@ -12,10 +12,10 @@ const RecentOrders = () => {
     setFilter,
   } = useTableFilters(["status", "period"]);
 
-  // ✅ Mutation untuk update order status
+  // Mutation untuk update order status
   const updateStatus = useUpdateOrderStatus();
 
-  // ✅ Fetch orders dengan filter dinamis
+  // Fetch orders dengan filter dinamis
   const { orders, meta, isLoading } = useOrderDetail({
     status: status || undefined,
     period: period || undefined,
@@ -23,7 +23,7 @@ const RecentOrders = () => {
     limit: 10,
   });
 
-  // ✅ Loading state
+  // Loading state
   if (isLoading) {
     return (
       <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
@@ -39,7 +39,7 @@ const RecentOrders = () => {
     );
   }
 
-  // ✅ Handle status change
+  // Handle status change
   const handleStatusChange = ({ orderId, orderStatus, tableId }) => {
     if (!orderId || !orderStatus) {
       console.error("❌ Missing required fields:", { orderId, orderStatus });
@@ -171,11 +171,7 @@ const RecentOrders = () => {
                     </span>
                   </td>
                   <td className="p-4 font-semibold">
-                    {new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                      minimumFractionDigits: 0,
-                    }).format(order.bills?.totalWithTax || 0)}
+                    {formatRupiah(order.bills?.totalWithTax || 0)}
                   </td>
                   <td className="p-4 text-center">
                     <span
@@ -205,21 +201,35 @@ const RecentOrders = () => {
 
         <div className="flex justify-center items-center gap-2 mt-4">
           <button
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            onClick={() => setPage(page - 1)}
             disabled={page === 1}
             className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
           >
             Prev
           </button>
 
-          <span>
-            {page} / {meta?.totalPages || 1}
-          </span>
+          {[...Array(meta?.totalPages || 1)].map((_, i) => {
+            const p = i + 1;
+            const isActive = p === page;
+
+            return (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                disabled={isActive}
+                className={`px-3 py-1 rounded transition ${
+                  isActive
+                    ? "bg-blue-600 text-white font-semibold cursor-default"
+                    : "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                }`}
+              >
+                {p}
+              </button>
+            );
+          })}
 
           <button
-            onClick={() =>
-              setPage((p) => Math.min(p + 1, meta?.totalPages || 1))
-            }
+            onClick={() => setPage(page + 1)}
             disabled={page === meta?.totalPages}
             className="bg-gray-700 px-3 py-1 rounded disabled:opacity-50"
           >

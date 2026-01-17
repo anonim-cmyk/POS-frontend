@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { deleteDish, getDishes } from "../api";
 import { enqueueSnackbar } from "notistack";
 
@@ -13,7 +18,7 @@ export const useDishes = ({
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: all ? ["dishes", "all"] : ["dishes", { page, limit, search }],
     queryFn: () => getDishes({ page, limit: all ? 1000 : limit, search }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     staleTime: 5000,
     select: (res) => res.data,
   });

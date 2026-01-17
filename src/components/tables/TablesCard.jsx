@@ -1,16 +1,25 @@
 import { useNavigate } from "react-router-dom";
 import { getAvatarName, getBgColor } from "../../utils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FaLongArrowAltRight } from "react-icons/fa";
 import { updatedTable } from "../../redux/slices/customerSlices";
+import { enqueueSnackbar } from "notistack";
 
 const TablesCard = ({ id, name, status, initials, seats }) => {
-  console.log("initials: ", initials);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { customerName, guests } = useSelector((state) => state.customer);
+
   const handleClick = (name) => {
     if (status === "Booked") return;
+
+    if (!customerName || guests === 0) {
+      enqueueSnackbar({
+        variant: "warning",
+        message: "Create order first (customer & guest)",
+      });
+      return;
+    }
 
     const table = { tableId: id, tableNo: name };
     dispatch(updatedTable({ table }));

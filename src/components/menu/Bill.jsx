@@ -8,6 +8,7 @@ import { removeAllItems } from "../../redux/slices/cartSlices";
 
 import Invoice from "../invoice/Invoice";
 import { useOrder } from "../../hooks/useOrder";
+import { formatRupiah } from "../../utils";
 
 const Bill = () => {
   const dispatch = useDispatch();
@@ -55,11 +56,7 @@ const Bill = () => {
           Items ({cartData.length})
         </p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          {new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(total)}
+          {formatRupiah(total)}
         </h1>
       </div>
 
@@ -67,11 +64,7 @@ const Bill = () => {
       <div className="flex items-center justify-between px-5 mt-2">
         <p className="text-xs text-[#ababab] font-medium mt-2">Tax (5.25%)</p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          {new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(tax)}
+          {formatRupiah(tax)}
         </h1>
       </div>
 
@@ -81,11 +74,7 @@ const Bill = () => {
           Total with Tax
         </p>
         <h1 className="text-[#f5f5f5] text-md font-bold">
-          {new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-            minimumFractionDigits: 0,
-          }).format(totalWithTax)}
+          {formatRupiah(totalWithTax)}
         </h1>
       </div>
 

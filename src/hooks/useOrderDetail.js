@@ -11,7 +11,7 @@ export const useOrderDetail = ({
   const query = useQuery({
     queryKey: ["orders", { status, period, search, page, limit }],
     queryFn: () => getOrders({ status, period, search, page, limit }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     select: (res) => res.data,
   });
 

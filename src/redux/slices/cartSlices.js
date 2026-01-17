@@ -6,10 +6,19 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addItems: (state, action) => {
-      state.push(action.payload);
+      const { dishId, quantity, pricePerQuantity } = action.payload;
+
+      const existingItem = state.find((item) => item.dishId === dishId);
+
+      if (existingItem) {
+        existingItem.quantity += quantity;
+        existingItem.price = existingItem.quantity * pricePerQuantity;
+      } else {
+        state.push(action.payload);
+      }
     },
     removeItem: (state, action) => {
-      return state.filter((item) => item.id != action.payload);
+      return state.filter((item) => item.dishId != action.payload);
     },
     removeAllItems: (state, action) => {
       return [];

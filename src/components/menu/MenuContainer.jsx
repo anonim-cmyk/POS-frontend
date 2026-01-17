@@ -8,7 +8,9 @@ import { useDishes } from "../../hooks/useDishes";
 
 const MenuContainer = () => {
   const dispatch = useDispatch();
-  const [selected, setSelected] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  // console.log("selected: ", selected);
+
   const [qty, setQty] = useState({});
 
   const { categories, isLoading: catLoad, isError: catError } = useCategories();
@@ -19,10 +21,10 @@ const MenuContainer = () => {
   } = useDishes({ all: true });
 
   // ✅ Log hasil parsing
-  useEffect(() => {
-    console.log("✅ PARSED CATEGORIES:", categories);
-    console.log("✅ PARSED DISHES:", dishes);
-  }, [categories, dishes]);
+  // useEffect(() => {
+  //   console.log("✅ PARSED CATEGORIES:", categories);
+  //   console.log("✅ PARSED DISHES:", dishes);
+  // }, [categories, dishes]);
 
   // ✅ Merge dengan useMemo (supaya tidak recreate terus)
   const menus = useMemo(() => {
@@ -36,13 +38,16 @@ const MenuContainer = () => {
 
   console.log("menus: ", menus);
 
+  const selected = useMemo(() => {
+    return menus.find((menu) => menu._id === selectedId);
+  }, [menus, selectedId]);
+
   // ✅ Auto select first category (hanya sekali)
   useEffect(() => {
-    if (menus.length > 0 && !selected) {
-      console.log("🎯 Auto selecting first menu:", menus[0]);
-      setSelected(menus[0]);
+    if (!selectedId && menus.length > 0) {
+      setSelectedId(menus[0]._id);
     }
-  }, [menus.length]); // ❗ dependency hanya length, bukan menus
+  }, [menus.length, selectedId]);
 
   // Quantity Logic
   const increment = (id) => {
@@ -132,7 +137,7 @@ const MenuContainer = () => {
             className="flex flex-col items-start justify-between p-4 rounded-lg h-[100px] cursor-pointer transition-all"
             style={{ backgroundColor: menu.bgColor || "#222" }}
             onClick={() => {
-              setSelected(menu);
+              setSelectedId(menu._id);
             }}
           >
             <div className="flex items-center justify-between w-full">
