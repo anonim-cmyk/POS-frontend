@@ -55,6 +55,7 @@ export const useOrder = ({ cartData, customerData, total }) => {
           paymentMethod,
         })
       );
+      console.log("ORDER RESPONSE:", res.data);
 
       const order = {
         ...res.data.data,
@@ -65,6 +66,7 @@ export const useOrder = ({ cartData, customerData, total }) => {
         },
       };
 
+      console.log("FINAL ORDER:", order);
       // 3️⃣ Update table (jangan sampai gagal silent)
       try {
         // await updatedTable({
