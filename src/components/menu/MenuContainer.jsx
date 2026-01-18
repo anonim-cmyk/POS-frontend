@@ -5,12 +5,11 @@ import { useDispatch } from "react-redux";
 import { addItems } from "../../redux/slices/cartSlices";
 import { useCategories } from "../../hooks/useCategories";
 import { useDishes } from "../../hooks/useDishes";
+import { formatRupiah } from "../../utils";
 
 const MenuContainer = () => {
   const dispatch = useDispatch();
   const [selectedId, setSelectedId] = useState(null);
-  // console.log("selected: ", selected);
-
   const [qty, setQty] = useState({});
 
   const { categories, isLoading: catLoad, isError: catError } = useCategories();
@@ -20,13 +19,7 @@ const MenuContainer = () => {
     isError: dishError,
   } = useDishes({ all: true });
 
-  // ✅ Log hasil parsing
-  // useEffect(() => {
-  //   console.log("✅ PARSED CATEGORIES:", categories);
-  //   console.log("✅ PARSED DISHES:", dishes);
-  // }, [categories, dishes]);
-
-  // ✅ Merge dengan useMemo (supaya tidak recreate terus)
+  // Merge dengan useMemo (supaya tidak recreate terus)
   const menus = useMemo(() => {
     if (categories.length === 0) return [];
 
@@ -36,13 +29,11 @@ const MenuContainer = () => {
     }));
   }, [categories, dishes]);
 
-  console.log("menus: ", menus);
-
   const selected = useMemo(() => {
     return menus.find((menu) => menu._id === selectedId);
   }, [menus, selectedId]);
 
-  // ✅ Auto select first category (hanya sekali)
+  // Auto select first category (hanya sekali)
   useEffect(() => {
     if (!selectedId && menus.length > 0) {
       setSelectedId(menus[0]._id);
@@ -84,8 +75,8 @@ const MenuContainer = () => {
   // ✅ Loading State
   if (catLoad || dishLoad) {
     return (
-      <div className="px-10 py-4">
-        <div className="grid grid-cols-4 gap-4 w-full mb-4">
+      <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 w-full mb-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
@@ -101,8 +92,8 @@ const MenuContainer = () => {
   // ✅ Error State
   if (catError || dishError) {
     return (
-      <div className="px-10 py-4">
-        <div className="bg-red-900/20 border border-red-600 rounded-lg p-6">
+      <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-4">
+        <div className="bg-red-900/20 border border-red-600 rounded-lg p-4 sm:p-6">
           <p className="text-red-400 font-semibold mb-2">Failed to load menu</p>
           <p className="text-red-300/70 text-sm">
             {catError?.message || dishError?.message}
@@ -121,7 +112,7 @@ const MenuContainer = () => {
   // ✅ Empty State
   if (categories.length === 0) {
     return (
-      <div className="px-10 py-4">
+      <div className="px-4 sm:px-6 md:px-8 lg:px-10 py-4">
         <p className="text-white/60 text-center">No categories available</p>
       </div>
     );
@@ -129,8 +120,8 @@ const MenuContainer = () => {
 
   return (
     <>
-      {/* Category Grid */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-full">
+      {/* Category Grid - Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 lg:px-10 py-4 w-full">
         {menus.map((menu) => (
           <div
             key={menu._id}
@@ -141,11 +132,14 @@ const MenuContainer = () => {
             }}
           >
             <div className="flex items-center justify-between w-full">
-              <h1 className="text-[#f5f5f5] text-lg font-semibold">
+              <h1 className="text-[#f5f5f5] text-base sm:text-lg font-semibold truncate pr-2">
                 {menu.icon} {menu.name}
               </h1>
               {selected?._id === menu._id && (
-                <GrRadialSelected className="text-white" size={20} />
+                <GrRadialSelected
+                  className="text-white flex-shrink-0"
+                  size={20}
+                />
               )}
             </div>
             <p className="text-[#ababab] text-sm font-semibold">
@@ -157,54 +151,56 @@ const MenuContainer = () => {
 
       <hr className="border-[#2a2a2a] border-t-2 mt-4" />
 
-      {/* Items Grid */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-full">
+      {/* Items Grid - Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 lg:px-10 py-4 w-full">
         {!selected ? (
-          <p className="text-white/60 col-span-4 text-center">
+          <p className="text-white/60 col-span-full text-center">
             Select a category
           </p>
         ) : selected.items.length === 0 ? (
-          <p className="text-white/60 col-span-4 text-center">
+          <p className="text-white/60 col-span-full text-center">
             No items in this category
           </p>
         ) : (
           selected.items.map((item) => (
             <div
               key={item._id}
-              className="flex flex-col items-start justify-between p-4 rounded-lg h-[150px] bg-[#1a1a1a] hover:bg-[#2a2a2a] transition-colors"
+              className="flex flex-col p-4 rounded-lg bg-[#1a1a1a] hover:bg-[#2a2a2a] transition-colors gap-4"
             >
-              <div className="flex items-start justify-between w-full">
-                <h1 className="text-[#f5f5f5] text-lg font-semibold">
+              {/* Header Section */}
+              <div className="flex items-start justify-between w-full gap-2">
+                <h1 className="text-[#f5f5f5] text-base sm:text-lg font-semibold flex-1 line-clamp-2">
                   {item.name}
                 </h1>
                 <button
                   onClick={() => handleAddToCart(item)}
-                  className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg hover:bg-[#3e5a50] transition-colors disabled:opacity-50"
+                  className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg hover:bg-[#3e5a50] transition-colors disabled:opacity-50 flex-shrink-0"
                   disabled={!qty[item._id] || qty[item._id] === 0}
                 >
-                  <FaShoppingCart size={20} />
+                  <FaShoppingCart size={18} className="sm:w-5 sm:h-5" />
                 </button>
               </div>
 
-              <div className="flex items-center justify-between w-full">
-                <p className="text-[#f5f5f5] text-xl font-bold">
-                  Rp. {item.price.toLocaleString("id-ID")}
+              {/* Price & Quantity Section */}
+              <div className="flex flex-col gap-3">
+                <p className="text-[#f5f5f5] text-lg sm:text-xl font-bold">
+                  {formatRupiah(item.price)}
                 </p>
 
-                <div className="flex items-center bg-[#1f1f1f] px-4 py-3 rounded-lg gap-6 w-[50%]">
+                <div className="flex items-center justify-center bg-[#1f1f1f] px-4 py-2 rounded-lg gap-6">
                   <button
                     onClick={() => decrement(item._id)}
-                    className="text-yellow-500 text-2xl hover:text-yellow-400 disabled:opacity-30"
+                    className="text-yellow-500 text-2xl hover:text-yellow-400 disabled:opacity-30 min-w-[30px] text-center"
                     disabled={!qty[item._id] || qty[item._id] === 0}
                   >
                     &minus;
                   </button>
-                  <span className="text-white font-semibold">
+                  <span className="text-white font-semibold text-base min-w-[24px] text-center">
                     {qty[item._id] || 0}
                   </span>
                   <button
                     onClick={() => increment(item._id)}
-                    className="text-yellow-500 text-2xl hover:text-yellow-400 disabled:opacity-30"
+                    className="text-yellow-500 text-2xl hover:text-yellow-400 disabled:opacity-30 min-w-[30px] text-center"
                     disabled={qty[item._id] >= 4}
                   >
                     &#43;

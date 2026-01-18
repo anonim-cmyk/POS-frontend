@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getPayments } from "../api";
 
 export const usePayments = ({
@@ -8,7 +8,7 @@ export const usePayments = ({
   itemsPerPage = 10,
 }) => {
   const { data, isLoading, error, isFetching } = useQuery({
-    queryKey: ["payments", page, statusFilter, periodFilter],
+    queryKey: ["payments", page, statusFilter, periodFilter, itemsPerPage],
     queryFn: () =>
       getPayments({
         page,
@@ -16,7 +16,7 @@ export const usePayments = ({
         status: statusFilter,
         period: periodFilter,
       }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     staleTime: 30000,
   });
 

@@ -11,17 +11,17 @@ import { formatRupiah } from "../utils";
 const Home = () => {
   const { orders, isLoading } = useOrderDetail({ page: 1, limit: 1000 });
 
-  // ✅ Hitung Total Earnings berdasarkan totalWithTax dari order completed
+  // Hitung Total Earnings berdasarkan totalWithTax dari order completed
   const totalEarnings = orders
     .filter((o) => o.orderStatus === "Completed")
     .reduce((sum, o) => sum + (o.bills?.totalWithTax || 0), 0);
 
-  // ✅ Hitung order sedang diproses
+  // Hitung order sedang diproses
   const inProgress = orders.filter((o) => o.orderStatus !== "Completed").length;
 
   return (
     <>
-      <section className="bg-[#1f1f1f] min-h-screen">
+      <section className="bg-[#1f1f1f] min-h-screen border overflow-y-hidden">
         {/* Container dengan max-width untuk layar besar */}
         <div className="max-w-[1600px] mx-auto">
           {/* Flex container yang responsive */}

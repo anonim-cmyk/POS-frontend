@@ -51,41 +51,43 @@ const Bill = () => {
   return (
     <>
       {/* Total Items */}
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">
+      <div className="flex items-center justify-between px-3 sm:px-4 md:px-5 mt-2">
+        <p className="text-xs sm:text-sm text-[#ababab] font-medium mt-2">
           Items ({cartData.length})
         </p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
+        <h1 className="text-sm sm:text-base md:text-lg text-[#f5f5f5] font-bold">
           {formatRupiah(total)}
         </h1>
       </div>
 
       {/* Tax */}
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">Tax (5.25%)</p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
+      <div className="flex items-center justify-between px-3 sm:px-4 md:px-5 mt-2">
+        <p className="text-xs sm:text-sm text-[#ababab] font-medium mt-2">
+          Tax (5.25%)
+        </p>
+        <h1 className="text-sm sm:text-base md:text-lg text-[#f5f5f5] font-bold">
           {formatRupiah(tax)}
         </h1>
       </div>
 
       {/* Total with Tax */}
-      <div className="flex items-center justify-between px-5 mt-2">
-        <p className="text-xs text-[#ababab] font-medium mt-2">
+      <div className="flex items-center justify-between px-3 sm:px-4 md:px-5 mt-2">
+        <p className="text-xs sm:text-sm text-[#ababab] font-medium mt-2">
           Total with Tax
         </p>
-        <h1 className="text-[#f5f5f5] text-md font-bold">
+        <h1 className="text-sm sm:text-base md:text-lg text-[#f5f5f5] font-bold">
           {formatRupiah(totalWithTax)}
         </h1>
       </div>
 
       {/* Payment Buttons */}
-      <div className="flex items-center gap-3 px-5 mt-4">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
         {["Cash", "Online"].map((method) => (
           <button
             key={method}
             onClick={() => setPaymentMethod(method.toLowerCase())}
             disabled={isProcessing}
-            className={`px-4 py-3 w-full rounded-lg font-semibold transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg font-semibold text-sm sm:text-base transition-colors ${
               paymentMethod === method.toLowerCase()
                 ? "bg-[#383737] text-white"
                 : "bg-[#1f1f1f] text-[#ababab]"
@@ -97,11 +99,11 @@ const Bill = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-3 px-5 mt-4">
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
         <button
           onClick={() => setShowInvoice(true)}
           disabled={!orderInfo || isProcessing}
-          className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#025cca] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Print Receipt
         </button>
@@ -109,11 +111,14 @@ const Bill = () => {
         <button
           onClick={() => placeOrder(paymentMethod)}
           disabled={isProcessing}
-          className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="bg-[#f6b100] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isProcessing ? (
             <span className="flex items-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <svg
+                className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
+                viewBox="0 0 24 24"
+              >
                 <circle
                   className="opacity-25"
                   cx="12"

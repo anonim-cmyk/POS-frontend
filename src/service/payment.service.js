@@ -1,4 +1,4 @@
-import { createCashPayment, createOrderMidtrans } from "../api/payment.api";
+import { createOrderMidtrans } from "../api/payment.api";
 
 export const processPayment = async ({
   orderCode,
@@ -7,41 +7,30 @@ export const processPayment = async ({
   table,
   method,
 }) => {
-  // CASH = langsung resolve
-  if (method === "cash") {
-    await createCashPayment({
-      orderCode,
-      grossAmount: amount,
-      customerName: customer.name,
-      customerPhone: customer.phone,
-      tableId: table.tableId,
-      tableNo: table.tableNo,
-    });
-
-    return;
-  }
-
   const res = await createOrderMidtrans({
     order_id: orderCode,
     gross_amount: amount,
+    method,
     customer_name: customer.name,
     customer_phone: customer.phone,
     tableNo: table.tableNo,
     tableId: table.tableId,
-    method,
   });
 
-  return new Promise((resolve, reject) => {
-    if (!window.snap) {
-      reject(new Error("Midtrans Snap not loaded"));
-      return;
-    }
+  if (method === "online") {
+    const token = res.data.data.snapToken;
 
-    window.snap.pay(res.data.token, {
-      onSuccess: resolve,
-      onPending: () => reject(new Error("Payment pending")),
-      onError: reject,
-      onClose: () => reject(new Error("Payment cancelled")),
+    if (!token) throw new Error("Snap token is missing!");
+
+    return new Promise((resolve, reject) => {
+      window.snap.pay(token, {
+        onSuccess: resolve,
+        onPending: resolve, // pending = tetap lanjut
+        onError: reject,
+        onClose: () => reject(new Error("Payment cancelled")),
+      });
     });
-  });
+  }
+
+  return res.data.data;
 };

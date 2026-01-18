@@ -23,8 +23,6 @@ export const useOrder = ({ cartData, customerData, total }) => {
   });
 
   const placeOrder = async (paymentMethod) => {
-    console.log("paymentMethod: ", paymentMethod);
-
     if (isLockedRef.current || !cartData.length) return;
 
     isLockedRef.current = true;
@@ -69,11 +67,11 @@ export const useOrder = ({ cartData, customerData, total }) => {
 
       // 3️⃣ Update table (jangan sampai gagal silent)
       try {
-        await updatedTable({
-          tableId: order.table,
-          status: "Booked",
-          orderId: order._id,
-        });
+        // await updatedTable({
+        //   tableId: order.table,
+        //   status: "Booked",
+        //   orderId: order._id,
+        // });
 
         queryClient.invalidateQueries({ queryKey: ["tables"] });
         queryClient.invalidateQueries({ queryKey: ["dishes"] });
