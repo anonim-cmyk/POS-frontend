@@ -17,6 +17,12 @@ export const processPayment = async ({
     tableId: table.tableId,
   });
 
+  // Cash payment langsung return
+  if (method === "cash") {
+    return { status: "success", ...res.data.data };
+  }
+
+  // Online payment - tunggu Midtrans callback
   if (method === "online") {
     const token = res.data.data.snapToken;
 
@@ -24,10 +30,29 @@ export const processPayment = async ({
 
     return new Promise((resolve, reject) => {
       window.snap.pay(token, {
-        onSuccess: (result) => resolve(result),
-        onPending: (result) => resolve(result), // pending = tetap lanjut
-        onError: reject,
-        onClose: () => reject(new Error("Payment cancelled")),
+        onSuccess: (result) => {
+          console.log("✅ Payment success:", result);
+          resolve({ status: "success", ...result });
+        },
+
+        onPending: (result) => {
+          console.log("⏳ Payment pending:", result);
+          // OPSI 1: Reject pending (invoice hanya muncul kalau berhasil)
+          reject(new Error("Payment is pending. Please complete the payment."));
+
+          // OPSI 2: Resolve pending (invoice tetap muncul, tapi tandai pending)
+          // resolve({ status: "pending", ...result });
+        },
+
+        onError: (error) => {
+          console.error("❌ Payment error:", error);
+          reject(new Error(error?.status_message || "Payment failed"));
+        },
+
+        onClose: () => {
+          console.log("🚪 Payment popup closed");
+          reject(new Error("Payment cancelled by user"));
+        },
       });
     });
   }

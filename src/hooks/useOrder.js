@@ -12,7 +12,6 @@ export const useOrder = ({ cartData, customerData, total }) => {
   const [showInvoice, setShowInvoice] = useState(false);
 
   const queryClient = useQueryClient();
-
   const isLockedRef = useRef(false);
 
   const tax = calculateTax(total);
@@ -32,7 +31,7 @@ export const useOrder = ({ cartData, customerData, total }) => {
 
     try {
       // 1️⃣ Payment
-      await processPayment({
+      const paymentResult = await processPayment({
         orderCode,
         amount: totalWithTax,
         customer: {
@@ -53,6 +52,7 @@ export const useOrder = ({ cartData, customerData, total }) => {
           total,
           tableId: customerData.table.tableId,
           paymentMethod,
+          paymentStatus: paymentResult.status, // ✅ simpan status payment
         })
       );
 
@@ -63,9 +63,10 @@ export const useOrder = ({ cartData, customerData, total }) => {
           phone: customerData.customerPhone,
           guests: customerData.guests,
         },
+        paymentStatus: paymentResult.status, // ✅ untuk ditampilkan di invoice
       };
 
-      // 3️⃣ Update table (jangan sampai gagal silent)
+      // 3️⃣ Update table
       try {
         await updatedTable({
           tableId: order.table,
@@ -80,10 +81,19 @@ export const useOrder = ({ cartData, customerData, total }) => {
         console.error("Update table failed", err);
       }
 
-      enqueueSnackbar("Order placed successfully!", { variant: "success" });
+      // ✅ Notifikasi sesuai status
+      if (paymentResult.status === "pending") {
+        enqueueSnackbar("Order placed! Payment is pending.", {
+          variant: "warning",
+        });
+      } else {
+        enqueueSnackbar("Order placed successfully!", {
+          variant: "success",
+        });
+      }
 
       setOrderInfo(order);
-      setShowInvoice(true);
+      setShowInvoice(true); // ✅ Invoice tetap muncul
     } catch (err) {
       console.error("ORDER FLOW ERROR:", err);
 
