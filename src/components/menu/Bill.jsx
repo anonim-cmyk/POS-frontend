@@ -3,36 +3,21 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getTotalPrice } from "../../redux/slices/cartSlices";
-import { removeCustomer } from "../../redux/slices/customerSlices";
-import { removeAllItems } from "../../redux/slices/cartSlices";
 
-import Invoice from "../invoice/Invoice";
 import { useOrder } from "../../hooks/useOrder";
 import { formatRupiah } from "../../utils";
 
 const Bill = () => {
-  const dispatch = useDispatch();
   const cartData = useSelector((state) => state.cart);
   const customerData = useSelector((state) => state.customer);
   const total = useSelector(getTotalPrice);
 
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  const {
-    tax,
-    totalWithTax,
-    isProcessing,
-    orderInfo,
-    showInvoice,
-    setShowInvoice,
-    placeOrder,
-  } = useOrder({
+  const { tax, totalWithTax, isProcessing, placeOrder } = useOrder({
     cartData,
     customerData,
     total,
-    dispatch,
-    removeCustomer,
-    removeAllItems,
   });
 
   /* Load Midtrans */
@@ -101,14 +86,6 @@ const Bill = () => {
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
         <button
-          onClick={() => setShowInvoice(true)}
-          disabled={!orderInfo || isProcessing}
-          className="bg-[#025cca] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Print Receipt
-        </button>
-
-        <button
           onClick={() => placeOrder(paymentMethod)}
           disabled={isProcessing}
           className="bg-[#f6b100] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
@@ -141,20 +118,6 @@ const Bill = () => {
           )}
         </button>
       </div>
-
-      {/* Invoice */}
-      {showInvoice && orderInfo && (
-        <Invoice
-          orderInfo={orderInfo}
-          setShowInvoice={(val) => {
-            setShowInvoice(val);
-            if (!val) {
-              dispatch(removeCustomer());
-              dispatch(removeAllItems());
-            }
-          }}
-        />
-      )}
     </>
   );
 };

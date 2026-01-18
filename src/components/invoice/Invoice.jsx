@@ -2,11 +2,11 @@ import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { FaCheck } from "react-icons/fa6";
 import { FaPrint, FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
-const Invoice = ({ orderInfo, setShowInvoice }) => {
-  console.log("order info", orderInfo);
-
+const Invoice = ({ order, onClose }) => {
   const invoiceRef = useRef(null);
+  const navigate = useNavigate();
 
   const handlePrint = () => {
     const printContent = invoiceRef.current.innerHTML;
@@ -44,7 +44,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
     }).format(num);
   };
 
-  console.log(orderInfo.items);
+  console.log(order.items);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
@@ -65,7 +65,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
             </div>
           </div>
           <button
-            onClick={() => setShowInvoice(false)}
+            // onClick={() => setShowInvoice(false)}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
             <FaTimes className="text-gray-500 text-lg sm:text-xl" />
@@ -85,13 +85,13 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Invoice ID:</span>
                   <span className="font-semibold text-gray-800">
-                    {orderInfo._id || "-"}
+                    {order._id || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date:</span>
                   <span className="font-semibold text-gray-800">
-                    {new Date(orderInfo.orderDate || Date.now()).toLocaleString(
+                    {new Date(order.orderDate || Date.now()).toLocaleString(
                       "id-ID"
                     )}
                   </span>
@@ -99,19 +99,19 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Name:</span>
                   <span className="font-semibold text-gray-800">
-                    {orderInfo.customerDetails?.name || "-"}
+                    {order.customerDetails?.name || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Phone:</span>
                   <span className="font-semibold text-gray-800">
-                    {orderInfo.customerDetails?.phone || "-"}
+                    {order.customerDetails?.phone || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Guests:</span>
                   <span className="font-semibold text-gray-800">
-                    {orderInfo.customerDetails?.guests || "-"}
+                    {order.customerDetails?.guests || "-"}
                   </span>
                 </div>
               </div>
@@ -124,7 +124,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                 Items Ordered
               </h3>
               <div className="space-y-3">
-                {orderInfo.items?.map((item, index) => (
+                {order.items?.map((item, index) => (
                   <div
                     key={index}
                     className="pb-3 border-b border-gray-100 last:border-0 last:pb-0"
@@ -160,19 +160,19 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
                   <span className="font-medium text-gray-800">
-                    {formatCurrency(orderInfo.bills?.total || 0)}
+                    {formatCurrency(order.bills?.total || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax (10%):</span>
                   <span className="font-medium text-gray-800">
-                    {formatCurrency(orderInfo.bills?.tax || 0)}
+                    {formatCurrency(order.bills?.tax || 0)}
                   </span>
                 </div>
                 <div className="pt-2 border-t-2 border-gray-200 flex justify-between">
                   <span className="font-bold text-gray-800">Grand Total:</span>
                   <span className="text-base sm:text-lg font-bold text-green-600">
-                    {formatCurrency(orderInfo.bills?.totalWithTax || 0)}
+                    {formatCurrency(order.bills?.totalWithTax || 0)}
                   </span>
                 </div>
               </div>
@@ -188,50 +188,50 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Method:</span>
                   <span className="font-semibold text-gray-800">
-                    {orderInfo.paymentMethod || "-"}
+                    {order.paymentMethod || "-"}
                   </span>
                 </div>
 
-                {orderInfo.paymentMethod === "Online" && (
+                {order.paymentMethod === "Online" && (
                   <>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Order ID:</span>
                       <span className="font-mono text-xs text-gray-800">
-                        {orderInfo.paymentData?.order_id || "-"}
+                        {order.paymentData?.order_id || "-"}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Transaction ID:</span>
                       <span className="font-mono text-xs text-gray-800">
-                        {orderInfo.paymentData?.transaction_id || "-"}
+                        {order.paymentData?.transaction_id || "-"}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Status:</span>
                       <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                        {orderInfo.paymentData?.transaction_status || "Pending"}
+                        {order.paymentData?.transaction_status || "Pending"}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Payment Type:</span>
                       <span className="font-semibold text-gray-800 uppercase">
-                        {orderInfo.paymentData?.payment_type || "-"}
+                        {order.paymentData?.payment_type || "-"}
                       </span>
                     </div>
                   </>
                 )}
 
-                {orderInfo.paymentMethod === "Cash" && (
+                {order.paymentMethod === "Cash" && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Status:</span>
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        orderInfo.paymentStatus === "Paid"
+                        order.paymentStatus === "Paid"
                           ? "bg-green-100 text-green-700"
                           : "bg-yellow-100 text-yellow-700"
                       }`}
                     >
-                      {orderInfo.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
+                      {order.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
                     </span>
                   </div>
                 )}
@@ -250,7 +250,7 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
             Print Receipt
           </button>
           <button
-            onClick={() => setShowInvoice(false)}
+            onClick={() => navigate(-1)}
             className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base"
           >
             <FaTimes className="text-sm sm:text-base" />

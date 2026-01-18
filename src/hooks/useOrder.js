@@ -5,11 +5,12 @@ import { buildOrderPayload, calculateTax } from "../utils/order.utils";
 import { processPayment } from "../service/payment.service";
 import { addOrder } from "../api/order.api";
 import { updatedTable } from "../api/table.api";
+import { useNavigate } from "react-router-dom";
 
 export const useOrder = ({ cartData, customerData, total }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [orderInfo, setOrderInfo] = useState(null);
-  const [showInvoice, setShowInvoice] = useState(false);
+
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
@@ -60,9 +61,7 @@ export const useOrder = ({ cartData, customerData, total }) => {
       );
 
       const orderData = res.data.data;
-
-      setOrderInfo(orderData);
-      setShowInvoice(true);
+      navigate(`/invoice?orderCode=${orderCode}`);
 
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["tables"] });
@@ -86,9 +85,6 @@ export const useOrder = ({ cartData, customerData, total }) => {
     tax,
     totalWithTax,
     isProcessing,
-    orderInfo,
-    showInvoice,
-    setShowInvoice,
     placeOrder,
   };
 };
