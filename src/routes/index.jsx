@@ -8,7 +8,6 @@ import Dashboard from "../pages/Dashboard";
 import More from "../pages/More";
 import PublicLayout from "./PublicLayout";
 import Auth from "../pages/Auth";
-import InvoicePage from "../pages/InvoicePage";
 
 const router = createBrowserRouter([
   {
@@ -37,10 +36,6 @@ const router = createBrowserRouter([
       {
         path: "more",
         element: <More />,
-      },
-      {
-        path: "invoice",
-        element: <InvoicePage />,
       },
     ],
   },

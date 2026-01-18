@@ -5,12 +5,11 @@ import { buildOrderPayload, calculateTax } from "../utils/order.utils";
 import { processPayment } from "../service/payment.service";
 import { addOrder } from "../api/order.api";
 import { updatedTable } from "../api/table.api";
-import { useNavigate } from "react-router-dom";
 
 export const useOrder = ({ cartData, customerData, total }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const navigate = useNavigate();
+  const [orderInfo, setOrderInfo] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -25,9 +24,6 @@ export const useOrder = ({ cartData, customerData, total }) => {
 
   const placeOrder = async (paymentMethod) => {
     if (isLockedRef.current || !cartData.length) return;
-    if (!paymentMethod) {
-      enqueueSnackbar("Select payment method first", { variant: "warning" });
-    }
 
     isLockedRef.current = true;
     setIsProcessing(true);
@@ -60,14 +56,34 @@ export const useOrder = ({ cartData, customerData, total }) => {
         })
       );
 
-      const orderData = res.data.data;
-      navigate(`/invoice?orderCode=${orderCode}`);
+      const order = {
+        ...res.data.data,
+        customerDetails: {
+          name: customerData.customerName,
+          phone: customerData.customerPhone,
+          guests: customerData.guests,
+        },
+      };
 
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["tables"] });
-      queryClient.invalidateQueries({ queryKey: ["dishes"] });
+      // 3️⃣ Update table (jangan sampai gagal silent)
+      try {
+        await updatedTable({
+          tableId: order.table,
+          status: "Booked",
+          orderId: order._id,
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["tables"] });
+        queryClient.invalidateQueries({ queryKey: ["dishes"] });
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
+      } catch (err) {
+        console.error("Update table failed", err);
+      }
 
       enqueueSnackbar("Order placed successfully!", { variant: "success" });
+
+      setOrderInfo(order);
+      setShowInvoice(true);
     } catch (err) {
       console.error("ORDER FLOW ERROR:", err);
 
@@ -85,6 +101,9 @@ export const useOrder = ({ cartData, customerData, total }) => {
     tax,
     totalWithTax,
     isProcessing,
+    orderInfo,
+    showInvoice,
+    setShowInvoice,
     placeOrder,
   };
 };
