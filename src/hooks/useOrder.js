@@ -24,6 +24,9 @@ export const useOrder = ({ cartData, customerData, total }) => {
 
   const placeOrder = async (paymentMethod) => {
     if (isLockedRef.current || !cartData.length) return;
+    if (!paymentMethod) {
+      enqueueSnackbar("Select payment method first", { variant: "warning" });
+    }
 
     isLockedRef.current = true;
     setIsProcessing(true);
@@ -55,37 +58,17 @@ export const useOrder = ({ cartData, customerData, total }) => {
           paymentMethod,
         })
       );
-      console.log("ORDER RESPONSE:", res.data);
 
-      const order = {
-        ...res.data.data,
-        customerDetails: {
-          name: customerData.customerName,
-          phone: customerData.customerPhone,
-          guests: customerData.guests,
-        },
-      };
+      const orderData = res.data.data;
 
-      console.log("FINAL ORDER:", order);
-      // 3️⃣ Update table (jangan sampai gagal silent)
-      try {
-        // await updatedTable({
-        //   tableId: order.table,
-        //   status: "Booked",
-        //   orderId: order._id,
-        // });
+      setOrderInfo(orderData);
+      setShowInvoice(true);
 
-        queryClient.invalidateQueries({ queryKey: ["tables"] });
-        queryClient.invalidateQueries({ queryKey: ["dishes"] });
-        queryClient.invalidateQueries({ queryKey: ["orders"] });
-      } catch (err) {
-        console.error("Update table failed", err);
-      }
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["tables"] });
+      queryClient.invalidateQueries({ queryKey: ["dishes"] });
 
       enqueueSnackbar("Order placed successfully!", { variant: "success" });
-
-      setOrderInfo(order);
-      setShowInvoice(true);
     } catch (err) {
       console.error("ORDER FLOW ERROR:", err);
 

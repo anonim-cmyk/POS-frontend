@@ -24,8 +24,8 @@ export const processPayment = async ({
 
     return new Promise((resolve, reject) => {
       window.snap.pay(token, {
-        onSuccess: resolve,
-        onPending: resolve, // pending = tetap lanjut
+        onSuccess: (result) => resolve(result),
+        onPending: (result) => resolve(result), // pending = tetap lanjut
         onError: reject,
         onClose: () => reject(new Error("Payment cancelled")),
       });
