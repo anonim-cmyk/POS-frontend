@@ -4,7 +4,7 @@ import { FaCheck } from "react-icons/fa6";
 import { FaPrint, FaTimes } from "react-icons/fa";
 
 const Invoice = ({ orderInfo, setShowInvoice }) => {
-  console.log("order info", orderInfo);
+  const isModal = typeof setShowInvoice === "function";
 
   const invoiceRef = useRef(null);
 
@@ -44,10 +44,14 @@ const Invoice = ({ orderInfo, setShowInvoice }) => {
     }).format(num);
   };
 
-  console.log(orderInfo.items);
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+    <div
+      className={
+        isModal
+          ? "fixed inset-0 bg-black/50 flex justify-center items-center z-50"
+          : "p-4"
+      }
+    >
       <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl w-full max-w-[500px] max-h-[90vh] flex flex-col border border-gray-200">
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-white rounded-t-2xl">

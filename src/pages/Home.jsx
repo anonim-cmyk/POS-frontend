@@ -21,7 +21,7 @@ const Home = () => {
 
   return (
     <>
-      <section className="bg-[#1f1f1f] min-h-screen border overflow-y-hidden">
+      <section className="bg-[#1f1f1f] min-h-screen overflow-y-hidden">
         {/* Container dengan max-width untuk layar besar */}
         <div className="max-w-[1600px] mx-auto">
           {/* Flex container yang responsive */}

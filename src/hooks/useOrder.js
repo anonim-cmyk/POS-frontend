@@ -10,40 +10,32 @@ export const useOrder = ({ cartData, customerData, total }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderInfo, setOrderInfo] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
-
-  const queryClient = useQueryClient();
   const isLockedRef = useRef(false);
+  const queryClient = useQueryClient();
 
   const tax = calculateTax(total);
   const totalWithTax = Math.round(total + tax);
 
-  const orderMutation = useMutation({
-    mutationFn: addOrder,
-  });
+  const orderMutation = useMutation({ mutationFn: addOrder });
 
   const placeOrder = async (paymentMethod) => {
     if (isLockedRef.current || !cartData.length) return;
-
     isLockedRef.current = true;
     setIsProcessing(true);
 
     const orderCode = `ORDER-${crypto.randomUUID()}`;
 
     try {
-      // 1️⃣ Payment
+      // Payment (Midtrans / Cash)
       const paymentResult = await processPayment({
         orderCode,
         amount: totalWithTax,
-        customer: {
-          name: customerData.customerName,
-          phone: customerData.customerPhone,
-          guests: customerData.guests,
-        },
+        customer: customerData,
         table: customerData.table,
         method: paymentMethod,
       });
 
-      // 2️⃣ Create order
+      // Create Order
       const res = await orderMutation.mutateAsync(
         buildOrderPayload({
           orderCode,
@@ -52,7 +44,7 @@ export const useOrder = ({ cartData, customerData, total }) => {
           total,
           tableId: customerData.table.tableId,
           paymentMethod,
-          paymentStatus: paymentResult.status, // ✅ simpan status payment
+          paymentStatus: paymentResult.status,
         })
       );
 
@@ -63,44 +55,36 @@ export const useOrder = ({ cartData, customerData, total }) => {
           phone: customerData.customerPhone,
           guests: customerData.guests,
         },
-        paymentStatus: paymentResult.status, // ✅ untuk ditampilkan di invoice
+        paymentStatus: paymentResult.status,
+        paymentMethod,
+        orderCode,
+        items: cartData,
+        bills: { total, tax, totalWithTax },
+        paymentData: paymentResult,
       };
 
-      // 3️⃣ Update table
-      try {
-        await updatedTable({
-          tableId: order.table,
-          status: "Booked",
-          orderId: order._id,
-        });
+      // Update table
+      await updatedTable({
+        tableId: order.table,
+        status: "Booked",
+        orderId: order._id,
+      });
 
-        queryClient.invalidateQueries({ queryKey: ["tables"] });
-        queryClient.invalidateQueries({ queryKey: ["dishes"] });
-        queryClient.invalidateQueries({ queryKey: ["orders"] });
-      } catch (err) {
-        console.error("Update table failed", err);
-      }
-
-      // ✅ Notifikasi sesuai status
-      if (paymentResult.status === "pending") {
-        enqueueSnackbar("Order placed! Payment is pending.", {
-          variant: "warning",
-        });
-      } else {
-        enqueueSnackbar("Order placed successfully!", {
-          variant: "success",
-        });
-      }
+      queryClient.invalidateQueries(["tables"]);
+      queryClient.invalidateQueries(["orders"]);
 
       setOrderInfo(order);
-      setShowInvoice(true); // ✅ Invoice tetap muncul
-    } catch (err) {
-      console.error("ORDER FLOW ERROR:", err);
+
+      if (paymentMethod === "cash") setShowInvoice(true);
 
       enqueueSnackbar(
-        err?.response?.data?.message || err?.message || "Order failed",
-        { variant: "error" }
+        paymentResult.status === "pending"
+          ? "Order placed! Payment pending."
+          : "Order placed successfully!",
+        { variant: paymentResult.status === "pending" ? "warning" : "success" }
       );
+    } catch (err) {
+      enqueueSnackbar(err.message || "Order failed", { variant: "error" });
     } finally {
       setIsProcessing(false);
       isLockedRef.current = false;

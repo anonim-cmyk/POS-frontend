@@ -101,7 +101,18 @@ const Bill = () => {
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
         <button
-          onClick={() => setShowInvoice(true)}
+          onClick={() => {
+            if (!orderInfo) return;
+
+            if (orderInfo.paymentMethod === "cash") {
+              setShowInvoice(true);
+            } else {
+              window.open(
+                `/payment-result?order_id=${orderInfo.orderCode}`,
+                "_blank"
+              );
+            }
+          }}
           disabled={!orderInfo || isProcessing}
           className="bg-[#025cca] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -143,7 +154,7 @@ const Bill = () => {
       </div>
 
       {/* Invoice */}
-      {showInvoice && orderInfo && (
+      {showInvoice && orderInfo?.paymentMethod === "cash" && (
         <Invoice
           orderInfo={orderInfo}
           setShowInvoice={(val) => {
