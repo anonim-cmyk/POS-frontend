@@ -17,8 +17,6 @@ export const processPayment = async ({
     tableId: table.tableId,
   });
 
-  console.log("res", res);
-
   // Cash payment langsung return
   if (method === "cash") {
     return { status: "success", ...res.data.data };

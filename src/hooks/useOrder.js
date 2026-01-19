@@ -35,6 +35,11 @@ export const useOrder = ({ cartData, customerData, total }) => {
         method: paymentMethod,
       });
 
+      paymentResult.customerName =
+        customerData.customerName || paymentResult.customerName;
+      paymentResult.customerPhone =
+        customerData.customerPhone || paymentResult.customerPhone;
+
       // Create Order
       const res = await orderMutation.mutateAsync(
         buildOrderPayload({
@@ -62,6 +67,8 @@ export const useOrder = ({ cartData, customerData, total }) => {
         bills: { total, tax, totalWithTax },
         paymentData: paymentResult,
       };
+
+      console.log("order: ", order);
 
       // Update table
       await updatedTable({
