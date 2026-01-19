@@ -1,20 +1,27 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { getOrderByCode } from "../api/order.api";
 
 export const usePaymentRedirect = () => {
-  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [order, setOrder] = useState(null);
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+
+  const orderId = searchParams.get("order_id");
+  const status = searchParams.get("transaction_status");
 
   useEffect(() => {
-    const orderId = searchParams.get("order_id");
-    const status = searchParams.get("transaction_status");
-
     if (!orderId || !status) return;
 
-    setPaymentInfo({ orderId, transactionStatus: status });
-    navigate("/tables", { replace: true });
-  }, [searchParams, navigate]);
+    const fetchOrder = async () => {
+      const res = await getOrderByCode(orderId);
+      setOrder({
+        ...res.data,
+        paymentStatus: status,
+      });
+    };
 
-  return paymentInfo;
+    fetchOrder();
+  }, [orderId, status]);
+
+  return order;
 };
