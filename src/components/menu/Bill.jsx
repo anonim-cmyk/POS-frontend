@@ -107,10 +107,7 @@ const Bill = () => {
             if (orderInfo.paymentMethod === "cash") {
               setShowInvoice(true);
             } else {
-              window.open(
-                `/payment-result?order_id=${orderInfo.orderCode}`,
-                "_blank"
-              );
+              window.location.href = `/payment-result?order_id=${orderInfo.orderCode}&transaction_status=${orderInfo.paymentStatus}`;
             }
           }}
           disabled={!orderInfo || isProcessing}

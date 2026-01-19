@@ -8,14 +8,25 @@ const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const orderId = searchParams.get("order_id");
-    if (!orderId) return navigate("/tables");
+  const orderId = searchParams.get("order_id");
+  const status = searchParams.get("transaction_status");
 
-    getOrderByCode(orderId)
-      .then((res) => setOrder(res.data))
-      .catch(() => navigate("/tables"));
-  }, [searchParams, navigate]);
+  useEffect(() => {
+    if (!orderId || !status) return navigate("/tables");
+
+    const fetchOrder = async () => {
+      try {
+        const res = await getOrderByCode(orderId);
+        setOrder({
+          ...res.data,
+          paymentStatus: status, // update status dari Midtrans
+        });
+      } catch {
+        navigate("/tables");
+      }
+    };
+    fetchOrder();
+  }, [orderId, status, navigate]);
 
   if (!order) return <p>Loading receipt...</p>;
 
