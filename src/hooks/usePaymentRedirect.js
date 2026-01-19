@@ -13,15 +13,27 @@ export const usePaymentRedirect = () => {
   useEffect(() => {
     if (!orderId || !status) return;
 
+    let isMounted = true;
+
     const fetchOrder = async () => {
-      const res = await getOrderByCode(orderId);
-      setOrder({
-        ...res.data,
-        paymentStatus: status,
-      });
+      try {
+        const res = await getOrderByCode(orderId);
+        if (isMounted) {
+          setOrder({
+            ...res.data,
+            paymentStatus: status,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch order:", err);
+      }
     };
 
     fetchOrder();
+
+    return () => {
+      isMounted = false;
+    };
   }, [orderId, status]);
 
   return order;
