@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getOrderByCode } from "../api/order.api";
+import { useEffect } from "react";
 
 export const usePaymentRedirect = () => {
   const [order, setOrder] = useState(null);
