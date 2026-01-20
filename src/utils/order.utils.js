@@ -1,9 +1,8 @@
-export const TAX_RATE = 5.25;
+export const TAX_RATE = 10;
 
 export const calculateTax = (total) => (total * TAX_RATE) / 100;
 
 export const buildOrderPayload = ({
-  orderCode,
   customer,
   cart,
   total,
@@ -13,20 +12,18 @@ export const buildOrderPayload = ({
   const tax = calculateTax(total);
 
   return {
-    orderCode,
     customerDetails: {
       name: customer.customerName,
       phone: customer.customerPhone,
       guests: customer.guests,
     },
-    orderStatus: "In Progress",
+    items: cart,
+    table: tableId,
     bills: {
       total,
       tax,
       totalWithTax: total + tax,
     },
-    items: cart,
-    table: tableId,
     paymentMethod,
   };
 };

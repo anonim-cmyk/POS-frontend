@@ -125,9 +125,9 @@ const RecentOrders = () => {
                   <td className="p-4">
                     <select
                       className={`bg-[#1a1a1a] text-[#f5f5f5] border border-gray-500 p-2 rounded-lg focus:outline-none cursor-pointer transition-colors ${
-                        order.orderStatus === "Completed"
+                        order.orderStatus === "completed"
                           ? "text-blue-400 border-blue-400"
-                          : order.orderStatus === "Ready"
+                          : order.orderStatus === "ready"
                           ? "text-green-500 border-green-500"
                           : "text-yellow-500 border-yellow-500"
                       }`}
@@ -146,13 +146,13 @@ const RecentOrders = () => {
                       }}
                       disabled={updateStatus.isPending}
                     >
-                      <option className="text-yellow-500" value="In Progress">
+                      <option className="text-yellow-500" value="in_progress">
                         In Progress
                       </option>
-                      <option className="text-green-500" value="Ready">
+                      <option className="text-green-500" value="ready">
                         Ready
                       </option>
-                      <option className="text-blue-400" value="Completed">
+                      <option className="text-blue-400" value="completed">
                         Completed
                       </option>
                     </select>

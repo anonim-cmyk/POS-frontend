@@ -4,19 +4,19 @@ import { GrCompliance } from "react-icons/gr";
 import { GrInProgress } from "react-icons/gr";
 
 const STATUS_CONFIG = {
-  "In Progress": {
+  in_progress: {
     badge: "bg-[#4a452e] text-[#ababab]",
     icon: <GrInProgress className="inline mr-2 text-yellow-600" />,
     dot: "text-yellow-600",
     label: "Preparing your order",
   },
-  Ready: {
+  ready: {
     badge: "bg-[#2e4a40] text-green-600",
     icon: <FaCheckDouble className="inline mr-2" />,
     dot: "text-green-600",
     label: "Ready to serve",
   },
-  Completed: {
+  completed: {
     badge: "bg-[#2e3b4a] text-blue-600",
     icon: <GrCompliance className="inline mr-2 text-blue-600" />,
     dot: "text-blue-600",
@@ -25,17 +25,19 @@ const STATUS_CONFIG = {
 };
 
 const OrderList = ({ order }) => {
-  const config = STATUS_CONFIG[order.orderStatus] || DEFAULT_STATUS;
+  console.log("order: ", order);
+
+  const config = STATUS_CONFIG[order.orderStatus];
 
   return (
     <div className="flex items-center gap-2 text-white px-8 mt-5">
       <button className="bg-[#f6b100] py-3 px-5 rounded-lg">
-        {getAvatarName(order.customerDetails.name)}
+        {getAvatarName(order.customer.name)}
       </button>
 
       <div className="flex justify-between w-full items-center">
         <div>
-          <p>{order.customerDetails.name}</p>
+          <p>{order.customer.name}</p>
           <p>{order.items.length} items</p>
         </div>
 

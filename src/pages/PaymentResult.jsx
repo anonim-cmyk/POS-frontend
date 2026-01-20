@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { enqueueSnackbar } from "notistack";
 import Invoice from "../components/invoice/Invoice";
-import { getOrderByCode } from "../api/order.api";
+import { getInvoiceByOrderCode } from "../api/invoice.api";
 
 const PaymentResult = () => {
   const [order, setOrder] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -12,25 +15,145 @@ const PaymentResult = () => {
   const status = searchParams.get("transaction_status");
 
   useEffect(() => {
-    if (!orderId || !status) return navigate("/tables");
+    console.log("🔍 Debug PaymentResult:", {
+      orderId,
+      status,
+      allParams: Object.fromEntries(searchParams.entries()),
+    });
+
+    if (!orderId) {
+      console.error("❌ No order_id found in URL");
+      enqueueSnackbar("Order ID not found", { variant: "error" });
+      setTimeout(() => navigate("/tables"), 2000);
+      return;
+    }
 
     const fetchOrder = async () => {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const res = await getOrderByCode(orderId);
-        setOrder({
-          ...res.data,
-          paymentStatus: status, // update status dari Midtrans
-        });
-      } catch {
-        navigate("/tables");
+        console.log("📡 Fetching order:", orderId);
+        const res = await getInvoiceByOrderCode(orderId);
+
+        console.log("✅ Order fetched:", res.data);
+
+        if (!res?.data?.data) {
+          throw new Error("Invalid response format");
+        }
+
+        const orderData = {
+          ...res.data.data,
+          paymentStatus: status || res.data.data.payment?.status || "success",
+        };
+
+        setOrder(orderData);
+        setIsLoading(false);
+      } catch (err) {
+        console.error("❌ Error fetching order:", err);
+
+        const errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to load receipt";
+
+        setError(errorMessage);
+        enqueueSnackbar(errorMessage, { variant: "error" });
+        setTimeout(() => navigate("/tables"), 3000);
       }
     };
+
     fetchOrder();
-  }, [orderId, status, navigate]);
+  }, [orderId, status]);
 
-  if (!order) return <p>Loading receipt...</p>;
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#1f1f1f]">
+        <div className="text-center">
+          {/* Spinner with gradient border */}
+          <div className="relative w-16 h-16 mx-auto mb-6">
+            <div className="absolute inset-0 rounded-full border-4 border-gray-700"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-orange-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+          </div>
 
-  return <Invoice orderInfo={order} />;
+          {/* Loading text with animation */}
+          <div className="space-y-2">
+            <p className="text-white text-lg font-semibold">Loading Receipt</p>
+            <div className="flex justify-center items-center space-x-1">
+              <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></span>
+              <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce delay-100"></span>
+              <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce delay-200"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#1f1f1f] p-4">
+        <div className="max-w-md w-full">
+          {/* Error card */}
+          <div className="bg-[#2a2a2a] border border-red-500/20 rounded-2xl p-8 shadow-2xl">
+            {/* Error icon */}
+            <div className="w-16 h-16 mx-auto mb-6 bg-red-500/10 rounded-full flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+
+            {/* Error message */}
+            <div className="text-center space-y-4">
+              <h2 className="text-xl font-bold text-white">
+                Oops! Something went wrong
+              </h2>
+              <p className="text-red-400 font-medium">{error}</p>
+              <p className="text-gray-400 text-sm">
+                Redirecting to tables in a moment...
+              </p>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-6 w-full bg-gray-700 rounded-full h-1 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-orange-500 to-red-500 animate-progress"></div>
+            </div>
+
+            {/* Manual redirect button */}
+            <button
+              onClick={() => navigate("/tables")}
+              className="mt-6 w-full bg-[#1f1f1f] hover:bg-gray-800 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 border border-gray-700"
+            >
+              Go Back Now
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Success state
+  if (!order) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#1f1f1f] py-8">
+      <Invoice orderInfo={order} paymentInfo={order.payment} />
+    </div>
+  );
 };
 
 export default PaymentResult;

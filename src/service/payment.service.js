@@ -17,6 +17,8 @@ export const processPayment = async ({
     tableId: table.tableId,
   });
 
+  console.log("res: ", res.data.data);
+
   // Cash payment langsung return
   if (method === "cash") {
     return { status: "success", ...res.data.data };
@@ -39,9 +41,6 @@ export const processPayment = async ({
           console.log("⏳ Payment pending:", result);
           // OPSI 1: Reject pending (invoice hanya muncul kalau berhasil)
           reject(new Error("Payment is pending. Please complete the payment."));
-
-          // OPSI 2: Resolve pending (invoice tetap muncul, tapi tandai pending)
-          // resolve({ status: "pending", ...result });
         },
 
         onError: (error) => {

@@ -1,14 +1,14 @@
 import api from "./http";
 
-export const createOrderMidtrans = (data) =>
-  api.post("/api/payment/create-order", data);
+export const createOrderMidtrans = async (data) => {
+  const res = await api.post("/api/payment/create-order", data);
+  return res.data?.data || res.data;
+};
 
 export const verifyPaymentMidtrans = (data) =>
   api.post("/api/payment/verify-payment", data);
 
-export const createCashPayment = (data) => {
-  api.post(`/api/payment/cash`, data);
-};
+// export const createCashPayment = (data) => api.post(`/api/payment/cash`, data);
 
 export const getPayments = async ({
   page = 1,

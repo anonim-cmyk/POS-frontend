@@ -17,23 +17,35 @@ const Bill = () => {
   const total = useSelector(getTotalPrice);
 
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const {
     tax,
     totalWithTax,
     isProcessing,
     orderInfo,
-    showInvoice,
-    setShowInvoice,
+    paymentInfo,
     placeOrder,
   } = useOrder({
     cartData,
     customerData,
     total,
-    dispatch,
-    removeCustomer,
-    removeAllItems,
   });
+
+  console.log("paymentInfo", paymentInfo);
+
+  const handlePlaceOrder = async () => {
+    if (!paymentMethod) return;
+
+    await placeOrder(paymentMethod);
+
+    // 🔑 CASH → langsung buka invoice
+    if (paymentMethod === "cash") {
+      setShowInvoice(true);
+    } else {
+      window.location.href = `/payment-result?order_id=${orderInfo.orderCode}&transaction_status=${paymentInfo?.status}`;
+    }
+  };
 
   /* Load Midtrans */
   useEffect(() => {
@@ -107,7 +119,7 @@ const Bill = () => {
             if (orderInfo.paymentMethod === "cash") {
               setShowInvoice(true);
             } else {
-              window.location.href = `/payment-result?order_id=${orderInfo.orderCode}&transaction_status=${orderInfo.paymentStatus}`;
+              window.location.href = `/payment-result?order_id=${orderInfo.orderCode}&transaction_status=${paymentInfo?.status}`;
             }
           }}
           disabled={!orderInfo || isProcessing}
@@ -117,8 +129,8 @@ const Bill = () => {
         </button>
 
         <button
-          onClick={() => placeOrder(paymentMethod)}
-          disabled={isProcessing}
+          onClick={handlePlaceOrder}
+          disabled={isProcessing || !paymentMethod}
           className="bg-[#f6b100] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isProcessing ? (
@@ -151,9 +163,10 @@ const Bill = () => {
       </div>
 
       {/* Invoice */}
-      {showInvoice && orderInfo?.paymentMethod === "cash" && (
+      {showInvoice && paymentMethod === "cash" && orderInfo && (
         <Invoice
           orderInfo={orderInfo}
+          paymentInfo={paymentInfo}
           setShowInvoice={(val) => {
             setShowInvoice(val);
             if (!val) {

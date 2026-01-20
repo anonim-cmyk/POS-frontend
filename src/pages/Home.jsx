@@ -13,11 +13,11 @@ const Home = () => {
 
   // Hitung Total Earnings berdasarkan totalWithTax dari order completed
   const totalEarnings = orders
-    .filter((o) => o.orderStatus === "Completed")
+    .filter((o) => o.orderStatus === "completed")
     .reduce((sum, o) => sum + (o.bills?.totalWithTax || 0), 0);
 
   // Hitung order sedang diproses
-  const inProgress = orders.filter((o) => o.orderStatus !== "Completed").length;
+  const inProgress = orders.filter((o) => o.orderStatus !== "completed").length;
 
   return (
     <>

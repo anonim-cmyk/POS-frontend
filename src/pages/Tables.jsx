@@ -5,7 +5,6 @@ import BackButton from "../components/shared/BackButton";
 import { useTables } from "../hooks/useTables";
 import TablesCard from "../components/tables/TablesCard";
 import FullScreenLoader from "../components/shared/FullScreenLoader";
-import { usePaymentRedirect } from "../hooks/usePaymentRedirect";
 import { FaUtensils } from "react-icons/fa";
 
 const TABLE_FILTERS = {
@@ -15,7 +14,7 @@ const TABLE_FILTERS = {
 
 const Tables = () => {
   const { tables, isLoading } = useTables();
-  const paymentInfo = usePaymentRedirect();
+  // const paymentInfo = usePaymentRedirect();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const status = searchParams.get("status") || "all";
@@ -85,7 +84,7 @@ const Tables = () => {
           </div>
 
           {/* Payment Success Banner */}
-          {paymentInfo?.transactionStatus === "settlement" && (
+          {/* {paymentInfo?.transactionStatus === "settlement" && (
             <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border-l-4 border-emerald-500 px-4 sm:px-6 lg:px-10 py-3 mx-4 sm:mx-6 lg:mx-10 mb-4 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
@@ -101,7 +100,7 @@ const Tables = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Tables Grid */}
