@@ -1,11 +1,7 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { getTotalPrice } from "../../redux/slices/cartSlices";
+import { getTotalPrice, removeAllItems } from "../../redux/slices/cartSlices";
 import { removeCustomer } from "../../redux/slices/customerSlices";
-import { removeAllItems } from "../../redux/slices/cartSlices";
-
 import Invoice from "../invoice/Invoice";
 import { useOrder } from "../../hooks/useOrder";
 import { formatRupiah } from "../../utils";
@@ -26,32 +22,38 @@ const Bill = () => {
     orderInfo,
     paymentInfo,
     placeOrder,
-  } = useOrder({
-    cartData,
-    customerData,
-    total,
-  });
-
-  console.log("paymentInfo", paymentInfo);
+  } = useOrder({ cartData, customerData, total });
 
   const handlePlaceOrder = async () => {
     if (!paymentMethod) return;
 
-    await placeOrder(paymentMethod);
+    const result = await placeOrder(paymentMethod);
 
-    // 🔑 CASH → langsung buka invoice
-    if (paymentMethod === "cash") {
+    // Only show invoice for cash payment
+    if (result && paymentMethod === "cash") {
       setShowInvoice(true);
-    } else {
-      window.location.href = `/payment-result?order_id=${orderInfo.orderCode}&transaction_status=${paymentInfo?.status}`;
     }
   };
 
-  /* Load Midtrans */
+  const handlePrintReceipt = () => {
+    if (!orderInfo) return;
+
+    if (paymentMethod === "cash") {
+      setShowInvoice(true);
+    } else {
+      window.location.href = `/payment-result?order_id=${orderInfo._id}`;
+    }
+  };
+
+  const handleCloseInvoice = () => {
+    setShowInvoice(false);
+    dispatch(removeCustomer());
+    dispatch(removeAllItems());
+  };
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-    script.async = true;
     script.setAttribute(
       "data-client-key",
       import.meta.env.VITE_MIDTRANS_CLIENT_KEY
@@ -62,48 +64,42 @@ const Bill = () => {
 
   return (
     <>
-      {/* Total Items */}
-      <div className="flex items-center justify-between px-3 sm:px-4 md:px-5 mt-2">
-        <p className="text-xs sm:text-sm text-[#ababab] font-medium mt-2">
-          Items ({cartData.length})
-        </p>
-        <h1 className="text-sm sm:text-base md:text-lg text-[#f5f5f5] font-bold">
-          {formatRupiah(total)}
-        </h1>
+      {/* Totals */}
+      <div className="px-3 sm:px-4 md:px-5 space-y-2 mt-2">
+        <div className="flex justify-between">
+          <p className="text-xs sm:text-sm text-[#ababab]">
+            Items ({cartData.length})
+          </p>
+          <h1 className="text-sm sm:text-base text-[#f5f5f5] font-bold">
+            {formatRupiah(total)}
+          </h1>
+        </div>
+        <div className="flex justify-between">
+          <p className="text-xs sm:text-sm text-[#ababab]">Tax (5.25%)</p>
+          <h1 className="text-sm sm:text-base text-[#f5f5f5] font-bold">
+            {formatRupiah(tax)}
+          </h1>
+        </div>
+        <div className="flex justify-between">
+          <p className="text-xs sm:text-sm text-[#ababab]">Total</p>
+          <h1 className="text-sm sm:text-base text-[#f5f5f5] font-bold">
+            {formatRupiah(totalWithTax)}
+          </h1>
+        </div>
       </div>
 
-      {/* Tax */}
-      <div className="flex items-center justify-between px-3 sm:px-4 md:px-5 mt-2">
-        <p className="text-xs sm:text-sm text-[#ababab] font-medium mt-2">
-          Tax (5.25%)
-        </p>
-        <h1 className="text-sm sm:text-base md:text-lg text-[#f5f5f5] font-bold">
-          {formatRupiah(tax)}
-        </h1>
-      </div>
-
-      {/* Total with Tax */}
-      <div className="flex items-center justify-between px-3 sm:px-4 md:px-5 mt-2">
-        <p className="text-xs sm:text-sm text-[#ababab] font-medium mt-2">
-          Total with Tax
-        </p>
-        <h1 className="text-sm sm:text-base md:text-lg text-[#f5f5f5] font-bold">
-          {formatRupiah(totalWithTax)}
-        </h1>
-      </div>
-
-      {/* Payment Buttons */}
-      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
+      {/* Payment Methods */}
+      <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
         {["Cash", "Online"].map((method) => (
           <button
             key={method}
             onClick={() => setPaymentMethod(method.toLowerCase())}
             disabled={isProcessing}
-            className={`px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg font-semibold text-sm sm:text-base transition-colors ${
+            className={`px-4 py-3 w-full rounded-lg font-semibold text-sm transition-colors ${
               paymentMethod === method.toLowerCase()
                 ? "bg-[#383737] text-white"
                 : "bg-[#1f1f1f] text-[#ababab]"
-            } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
+            } disabled:opacity-50`}
           >
             {method}
           </button>
@@ -111,19 +107,11 @@ const Bill = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 px-3 sm:px-4 md:px-5 mt-4">
         <button
-          onClick={() => {
-            if (!orderInfo) return;
-
-            if (orderInfo.paymentMethod === "cash") {
-              setShowInvoice(true);
-            } else {
-              window.location.href = `/payment-result?order_id=${orderInfo.orderCode}&transaction_status=${paymentInfo?.status}`;
-            }
-          }}
+          onClick={handlePrintReceipt}
           disabled={!orderInfo || isProcessing}
-          className="bg-[#025cca] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#025cca] px-4 py-3 w-full rounded-lg text-[#f5f5f5] font-semibold text-sm disabled:opacity-50"
         >
           Print Receipt
         </button>
@@ -131,14 +119,11 @@ const Bill = () => {
         <button
           onClick={handlePlaceOrder}
           disabled={isProcessing || !paymentMethod}
-          className="bg-[#f6b100] px-3 sm:px-4 py-2 sm:py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-sm sm:text-base md:text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="bg-[#f6b100] px-4 py-3 w-full rounded-lg text-[#1f1f1f] font-semibold text-sm disabled:opacity-50 flex items-center justify-center"
         >
           {isProcessing ? (
             <span className="flex items-center gap-2">
-              <svg
-                className="animate-spin h-4 w-4 sm:h-5 sm:w-5"
-                viewBox="0 0 24 24"
-              >
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -162,18 +147,12 @@ const Bill = () => {
         </button>
       </div>
 
-      {/* Invoice */}
-      {showInvoice && paymentMethod === "cash" && orderInfo && (
+      {/* Invoice Modal */}
+      {showInvoice && orderInfo && (
         <Invoice
           orderInfo={orderInfo}
           paymentInfo={paymentInfo}
-          setShowInvoice={(val) => {
-            setShowInvoice(val);
-            if (!val) {
-              dispatch(removeCustomer());
-              dispatch(removeAllItems());
-            }
-          }}
+          setShowInvoice={handleCloseInvoice}
         />
       )}
     </>

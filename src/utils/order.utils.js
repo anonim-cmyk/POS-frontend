@@ -17,8 +17,8 @@ export const buildOrderPayload = ({
       phone: customer.customerPhone,
       guests: customer.guests,
     },
-    items: cart,
     table: tableId,
+    items: cart,
     bills: {
       total,
       tax,

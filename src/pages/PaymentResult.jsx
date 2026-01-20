@@ -11,17 +11,17 @@ const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const orderId = searchParams.get("order_id");
+  const orderCode = searchParams.get("order_code");
   const status = searchParams.get("transaction_status");
 
   useEffect(() => {
     console.log("🔍 Debug PaymentResult:", {
-      orderId,
+      orderCode,
       status,
       allParams: Object.fromEntries(searchParams.entries()),
     });
 
-    if (!orderId) {
+    if (!orderCode) {
       console.error("❌ No order_id found in URL");
       enqueueSnackbar("Order ID not found", { variant: "error" });
       setTimeout(() => navigate("/tables"), 2000);
@@ -33,8 +33,8 @@ const PaymentResult = () => {
       setError(null);
 
       try {
-        console.log("📡 Fetching order:", orderId);
-        const res = await getInvoiceByOrderCode(orderId);
+        console.log("📡 Fetching order:", orderCode);
+        const res = await getInvoiceByOrderCode(orderCode);
 
         console.log("✅ Order fetched:", res.data);
 
@@ -64,7 +64,7 @@ const PaymentResult = () => {
     };
 
     fetchOrder();
-  }, [orderId, status]);
+  }, [orderCode, status]);
 
   // Loading state
   if (isLoading) {

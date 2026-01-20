@@ -31,6 +31,7 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
               font-family: Arial, sans-serif; 
               padding: 20px; 
               background: #fff;
+              text: center;
             }
             .receipt-container { 
               max-width: 400px; 
