@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { exportPaymentsToExcel } from "../../utils/excelExport.utils";
 import { usePayments } from "../../hooks/usePayments";
 import { useTableFilters } from "../../hooks/useTableFilters";
+import { formatRupiah } from "../../utils";
 
 const PaymentTable = () => {
   const {
@@ -90,10 +91,8 @@ const PaymentTable = () => {
                 key={p._id}
                 className="border-b border-[#333] hover:bg-[#1e1e1e]"
               >
-                <td className="p-3">{p.orderCode}</td>
-                <td className="p-3">
-                  Rp {p.grossAmount.toLocaleString("id-ID")}
-                </td>
+                <td className="p-3">{p.order.orderCode}</td>
+                <td className="p-3">Rp {p.amount.toLocaleString("id-ID")}</td>
                 <td
                   className={`p-3 capitalize ${
                     p.status === "success"
@@ -106,8 +105,8 @@ const PaymentTable = () => {
                   {p.status}
                 </td>
                 <td className="p-3">{p.paymentMethod}</td>
-                <td className="p-3">{p.customerName || "-"}</td>
-                <td className="p-3">{p.customerPhone || "-"}</td>
+                <td className="p-3">{p.order.customer.name || "-"}</td>
+                <td className="p-3">{p.order.customer.phone || "-"}</td>
                 <td className="p-3">
                   {p.createdAt
                     ? format(new Date(p.createdAt), "dd MMM yyyy HH:mm")
@@ -128,7 +127,7 @@ const PaymentTable = () => {
       </table>
 
       <div className="mt-4 text-right text-lg font-semibold">
-        Total Amount: Rp {totalAmount.toLocaleString("id-ID") || 0}
+        Total Amount: {formatRupiah(totalAmount)}
       </div>
 
       {/* Pagination */}

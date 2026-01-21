@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { enqueueSnackbar } from "notistack";
 import Invoice from "../components/invoice/Invoice";
 import { getInvoiceByOrderCode } from "../api/invoice.api";
+import FullScreenLoader from "../components/shared/FullScreenLoader";
 
 const PaymentResult = () => {
   const [order, setOrder] = useState(null);
@@ -67,29 +68,7 @@ const PaymentResult = () => {
   }, [orderCode, status]);
 
   // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#1f1f1f]">
-        <div className="text-center">
-          {/* Spinner with gradient border */}
-          <div className="relative w-16 h-16 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full border-4 border-gray-700"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-orange-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
-          </div>
-
-          {/* Loading text with animation */}
-          <div className="space-y-2">
-            <p className="text-white text-lg font-semibold">Loading Receipt</p>
-            <div className="flex justify-center items-center space-x-1">
-              <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></span>
-              <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce delay-100"></span>
-              <span className="w-2 h-2 bg-orange-500 rounded-full animate-bounce delay-200"></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <FullScreenLoader />;
 
   // Error state
   if (error) {

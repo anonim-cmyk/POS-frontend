@@ -66,7 +66,7 @@ const PopularDishes = () => {
                   </h1>
                   <p className="text-[#f5f5f5] text-sm font-semibold mt-1">
                     <span className="text-[#ababab]">Orders: </span>
-                    {dish.numberOfOrders}
+                    {dish.totalQty}
                   </p>
                 </div>
               </div>

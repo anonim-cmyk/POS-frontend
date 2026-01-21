@@ -3,6 +3,8 @@ import { enqueueSnackbar } from "notistack";
 import { useOrderDetail } from "../../hooks/useOrderDetail";
 import { useUpdateOrderStatus } from "../../hooks/useUpdateOrderStatus";
 import { useTableFilters } from "../../hooks/useTableFilters";
+import { useDebounce } from "../../hooks/useDebounce";
+import { usePaginationParams } from "../../hooks/usePaginationParams";
 
 const RecentOrders = () => {
   const {
@@ -11,6 +13,9 @@ const RecentOrders = () => {
     filters: { status, period },
     setFilter,
   } = useTableFilters(["status", "period"]);
+
+  const { search } = usePaginationParams();
+  const debouncedSearch = useDebounce(search, 400);
 
   // Mutation untuk update order status
   const updateStatus = useUpdateOrderStatus();
@@ -21,6 +26,7 @@ const RecentOrders = () => {
     period: period || undefined,
     page,
     limit: 10,
+    search: debouncedSearch,
   });
 
   // Loading state
@@ -51,7 +57,7 @@ const RecentOrders = () => {
   };
 
   return (
-    <div className="container mx-auto bg-[#262626] p-4 rounded-lg">
+    <div className="container mx-auto p-6 rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-[#f5f5f5] text-xl font-semibold">
           Recent Orders ({orders.length})
@@ -63,9 +69,9 @@ const RecentOrders = () => {
             className="bg-gray-800 text-white px-3 py-2 rounded-lg"
           >
             <option value="">All Status</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Ready">Ready</option>
-            <option value="Completed">Completed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="ready">Ready</option>
+            <option value="completed">Completed</option>
           </select>
 
           <select
@@ -99,7 +105,6 @@ const RecentOrders = () => {
               <th className="p-3">Items</th>
               <th className="p-3">Table No</th>
               <th className="p-3">Total</th>
-              <th className="p-3 text-center">Payment</th>
             </tr>
           </thead>
           <tbody>
@@ -115,10 +120,10 @@ const RecentOrders = () => {
                   <td className="p-4">
                     <div>
                       <div className="font-semibold">
-                        {order.customerDetails?.name || "Unknown"}
+                        {order.customer?.name || "Unknown"}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {order.customerDetails?.phone || "-"}
+                        {order.customer?.phone || "-"}
                       </div>
                     </div>
                   </td>
@@ -172,17 +177,6 @@ const RecentOrders = () => {
                   </td>
                   <td className="p-4 font-semibold">
                     {formatRupiah(order.bills?.totalWithTax || 0)}
-                  </td>
-                  <td className="p-4 text-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        order.paymentMethod === "cash"
-                          ? "bg-green-900/30 text-green-400"
-                          : "bg-blue-900/30 text-blue-400"
-                      }`}
-                    >
-                      {order.paymentMethod?.toUpperCase() || "N/A"}
-                    </span>
                   </td>
                 </tr>
               ))

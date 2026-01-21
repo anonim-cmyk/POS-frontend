@@ -21,7 +21,8 @@ const Metrics = () => {
   if (isLoading) return <FullScreenLoader />;
   if (error) return <p className="text-red-500">Failed to load</p>;
 
-  const { metrics = {}, items = {} } = response?.data.data || {};
+  const { metrics = {}, items = {} } = response?.data?.data || {};
+  console.log("metrics: ", metrics);
 
   const metricsData = [
     {
@@ -70,7 +71,7 @@ const Metrics = () => {
   ];
 
   return (
-    <div className="container mx-auto py-2 px-6 md:px-4 overflow-hidden">
+    <div className="container mx-auto p-6 overflow-hidden">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="font-semibold text-[#f5f5f5] text-xl">

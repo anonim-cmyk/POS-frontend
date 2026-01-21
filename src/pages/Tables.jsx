@@ -112,7 +112,7 @@ const Tables = () => {
                 id={table._id}
                 name={table.tableNo}
                 status={table.status}
-                initials={table?.currentOrder?.customerDetails?.name || "-"}
+                initials={table?.currentOrder?.customer?.name || "-"}
                 seats={table.seats}
               />
             ))}

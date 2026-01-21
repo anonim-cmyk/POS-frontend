@@ -5,6 +5,7 @@ import { removeCustomer } from "../../redux/slices/customerSlices";
 import Invoice from "../invoice/Invoice";
 import { useOrder } from "../../hooks/useOrder";
 import { formatRupiah } from "../../utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Bill = () => {
   const dispatch = useDispatch();
@@ -24,10 +25,18 @@ const Bill = () => {
     placeOrder,
   } = useOrder({ cartData, customerData, total });
 
+  const queryClient = useQueryClient();
+
   const handlePlaceOrder = async () => {
     if (!paymentMethod) return;
 
     const result = await placeOrder(paymentMethod);
+
+    if (!result) return;
+
+    queryClient.invalidateQueries({ queryKey: ["dishes", "popular"] });
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
+    queryClient.invalidateQueries({ queryKey: ["sales-report"] });
 
     // Only show invoice for cash payment
     if (result && paymentMethod === "cash") {

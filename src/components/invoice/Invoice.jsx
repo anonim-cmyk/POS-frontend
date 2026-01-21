@@ -166,7 +166,7 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                 <div className="flex justify-between py-1">
                   <span className="text-gray-400">Name:</span>
                   <span className="font-semibold text-white">
-                    {orderInfo.customerDetails?.name || "-"}
+                    {orderInfo.customer?.name || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">

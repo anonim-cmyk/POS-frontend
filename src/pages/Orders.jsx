@@ -9,9 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 
 const ORDER_STATUS = {
   ALL: "all",
-  PROGRESS: "In Progress",
-  READY: "Ready",
-  COMPLETED: "Completed",
+  PROGRESS: "in_progress",
+  READY: "ready",
+  COMPLETED: "completed",
 };
 
 const Orders = () => {

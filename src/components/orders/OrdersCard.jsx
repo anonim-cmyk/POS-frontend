@@ -2,7 +2,7 @@ import { formatDateAndTime, formatRupiah, getAvatarName } from "../../utils";
 import { FaCheckDouble, FaCircle, FaLongArrowAltRight } from "react-icons/fa";
 
 const STATUS_CONFIG = {
-  Progress: {
+  in_progress: {
     text: "text-amber-400",
     bg: "bg-amber-950/50",
     border: "border-amber-800/30",
@@ -11,7 +11,7 @@ const STATUS_CONFIG = {
     pulse: true,
     icon: "circle",
   },
-  Ready: {
+  ready: {
     text: "text-emerald-400",
     bg: "bg-emerald-950/50",
     border: "border-emerald-800/30",
@@ -20,7 +20,7 @@ const STATUS_CONFIG = {
     pulse: false,
     icon: "check",
   },
-  Completed: {
+  completed: {
     text: "text-blue-400",
     bg: "bg-blue-950/50",
     border: "border-blue-800/30",
@@ -38,12 +38,12 @@ const OrdersCard = ({ order }) => {
         <div className="flex gap-3">
           <div className="bg-gradient-to-br from-[#f6b100] to-[#e09e00] px-4 py-3 rounded-xl text-black font-bold shadow-md flex items-center justify-center min-w-[56px] h-14">
             <span className="text-lg">
-              {getAvatarName(order.customerDetails.name)}
+              {getAvatarName(order.customer.name)}
             </span>
           </div>
           <div className="flex flex-col gap-1">
             <h1 className="text-lg font-bold text-white font-poppins">
-              {order.customerDetails.name}
+              {order.customer.name}
             </h1>
             <p className="text-xs font-semibold text-gray-400">
               #{Math.floor(new Date(order.orderDate).getTime())} • Dine in

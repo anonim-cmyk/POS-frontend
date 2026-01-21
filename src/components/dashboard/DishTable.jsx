@@ -17,7 +17,7 @@ const DishTable = ({ onAdd, onEdit }) => {
   if (isLoading && !dishes.length) return <FullScreenLoader />;
 
   return (
-    <div className="mx-6">
+    <div className="p-6">
       <div className="flex justify-between mb-4">
         <h2 className="text-white text-2xl font-semibold">Dishes</h2>
         <button
