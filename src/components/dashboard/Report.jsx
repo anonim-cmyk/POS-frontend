@@ -1,16 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatRupiah } from "../../utils";
 import { getSalesReport } from "../../api/report.api";
 import FullScreenLoader from "../shared/FullScreenLoader";
+import { useRoutes, useSearchParams } from "react-router-dom";
 
 const Reports = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [period, setPeriod] = useState("30d");
+  // const [period, setPeriod] = useState("30d");
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const period = searchParams.get("period") || "";
+
+  const handlePeriodChange = (e) => {
+    const value = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value) {
+      params.set("period", value);
+    } else {
+      params.delete("period"); // All Time
+    }
+
+    setSearchParams(params);
+  };
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["sales-report", period],
     queryFn: () => getSalesReport(period),
+    // select: (res) => res.data,
   });
 
   const tabs = [
@@ -21,10 +40,10 @@ const Reports = () => {
   ];
 
   const periods = [
-    { value: "7d", label: "7 Days" },
-    { value: "30d", label: "30 Days" },
-    { value: "90d", label: "90 Days" },
-    { value: "ytd", label: "Year to Date" },
+    { value: "", label: "All Time" },
+    { value: "week", label: "This Week" },
+    { value: "month", label: "This Month" },
+    { value: "year", label: "This Year" },
   ];
 
   if (isLoading) return <FullScreenLoader />;
@@ -45,8 +64,13 @@ const Reports = () => {
     );
   }
 
-  const { summary, revenueByMethod, topItems } = data.data.data;
+  const {
+    summary = {},
+    revenueByMethod = {},
+    topItems = {},
+  } = data.data.data || {};
   const totalRevenue = summary.totalRevenue || 0;
+  console.log("total Revenue", totalRevenue);
 
   return (
     <div className="p-6 text-white">
@@ -63,7 +87,7 @@ const Reports = () => {
           {/* Period Selector */}
           <select
             value={period}
-            onChange={(e) => setPeriod(e.target.value)}
+            onChange={handlePeriodChange}
             className="bg-[#262626] px-4 py-2 rounded border border-gray-700 focus:outline-none focus:border-orange-500"
           >
             {periods.map((p) => (
@@ -219,10 +243,10 @@ const SalesTab = ({ summary, totalRevenue }) => {
           color="green"
         />
         <MetricCard
-          title="Cancelled Orders"
+          title="Incompleted Orders"
           value={cancelledOrders}
           total={summary.totalOrders}
-          color="red"
+          color="yellow"
         />
         <MetricCard
           title="Success Rate"
@@ -478,7 +502,8 @@ const MetricCard = ({ title, value, total, subtitle, color }) => {
   const colorClasses = {
     green:
       "from-green-500/10 to-emerald-500/5 border-green-500/20 text-green-500",
-    red: "from-red-500/10 to-rose-500/5 border-red-500/20 text-red-500",
+    yellow:
+      "from-yellow-500/10 to-amber-500/5 border-yellow-500/20 text-yellow-500",
     blue: "from-blue-500/10 to-cyan-500/5 border-blue-500/20 text-blue-500",
   };
 

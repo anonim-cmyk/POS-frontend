@@ -35,6 +35,7 @@ const Bill = () => {
     if (!result) return;
 
     queryClient.invalidateQueries({ queryKey: ["dishes", "popular"] });
+    queryClient.invalidateQueries({ queryKey: ["low-stock-dishes"] });
     queryClient.invalidateQueries({ queryKey: ["orders"] });
     queryClient.invalidateQueries({ queryKey: ["sales-report"] });
 

@@ -3,6 +3,7 @@ import { exportPaymentsToExcel } from "../../utils/excelExport.utils";
 import { usePayments } from "../../hooks/usePayments";
 import { useTableFilters } from "../../hooks/useTableFilters";
 import { formatRupiah } from "../../utils";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const PaymentTable = () => {
   const {
@@ -10,13 +11,22 @@ const PaymentTable = () => {
     setPage,
     filters: { status, period },
     setFilter,
+    setSearch,
+    clearFilters,
+    search,
   } = useTableFilters(["status", "period"]);
+
+  const debouncedSearch = useDebounce(search, 400);
+
   const { payments, totalPages, totalAmount, isLoading, error } = usePayments({
     page,
     statusFilter: status,
     periodFilter: period,
     itemsPerPage: 10,
+    search: debouncedSearch,
   });
+
+  console.log("payment: ", payments);
 
   if (isLoading) {
     return (
@@ -75,7 +85,7 @@ const PaymentTable = () => {
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-[#2a2a2a] text-left">
-            <th className="p-3">Order ID</th>
+            <th className="p-3">Order Code</th>
             <th className="p-3">Amount</th>
             <th className="p-3">Status</th>
             <th className="p-3">Method</th>

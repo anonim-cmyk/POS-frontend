@@ -1,3 +1,4 @@
 import api from "./http";
 
-export const getSalesReport = (params = {}) => api.get(`/api/sales/`, params);
+export const getSalesReport = (period) =>
+  api.get(`/api/sales`, { params: period });

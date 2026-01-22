@@ -46,7 +46,7 @@ const OrdersCard = ({ order }) => {
               {order.customer.name}
             </h1>
             <p className="text-xs font-semibold text-gray-400">
-              #{Math.floor(new Date(order.orderDate).getTime())} • Dine in
+              #{order.orderCode.slice(-6)} • Dine in
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-[#ababab] text-xs">Table</span>
