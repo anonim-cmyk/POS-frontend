@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FaCheck, FaPrint, FaTimes, FaReceipt } from "react-icons/fa";
 
 const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
+  console.log("paymentInfo", paymentInfo);
+
   console.log("orderinfo", orderInfo);
 
   const navigate = useNavigate();
