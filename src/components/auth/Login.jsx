@@ -19,6 +19,8 @@ const Login = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    console.time("login");
     loginMutation.mutate(formData);
     setIsFormData({
       email: "",
@@ -29,13 +31,14 @@ const Login = () => {
   const loginMutation = useMutation({
     mutationFn: (reqData) => login(reqData),
     onSuccess: (res) => {
+      console.timeEnd("login_total");
       const { data } = res;
-      console.log(data);
       const { userId, name, email, phone, role } = data.data;
       dispatch(setUser({ userId, name, email, phone, role }));
       navigate("/");
     },
     onError: (error) => {
+      console.timeEnd("login_total");
       const { response } = error;
       enqueueSnackbar(response.data.message, { variant: "error" });
     },
