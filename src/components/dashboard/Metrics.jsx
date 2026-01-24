@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import FullScreenLoader from "../shared/FullScreenLoader";
 import { useState } from "react";
 import { getDashboardMetrics } from "../../api/dashboard.api";
@@ -16,7 +16,7 @@ const Metrics = () => {
   } = useQuery({
     queryKey: ["dashboard-metrics", filter],
     queryFn: () => getDashboardMetrics(filter),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
   if (isLoading) return <FullScreenLoader />;
   if (error) return <p className="text-red-500">Failed to load</p>;

@@ -172,13 +172,13 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                 <div className="flex justify-between py-1">
                   <span className="text-gray-400">Phone:</span>
                   <span className="font-semibold text-white">
-                    {orderInfo.customerDetails?.phone || "-"}
+                    {orderInfo.csutomer?.phone || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-400">Guests:</span>
                   <span className="font-semibold text-white">
-                    {orderInfo.customerDetails?.guests || "-"}
+                    {orderInfo.customer?.guests || "-"}
                   </span>
                 </div>
               </div>
@@ -202,7 +202,7 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                           {item.name}
                         </span>
                         <span className="text-xs text-gray-500 ml-2">
-                          × {item.quantity}
+                          × {item.qty}
                         </span>
                       </div>
                       <span className="text-xs sm:text-sm font-semibold text-orange-400 ml-2">
@@ -210,7 +210,7 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                       </span>
                     </div>
                     <div className="text-[10px] sm:text-xs text-gray-500">
-                      @{formatCurrency(item.pricePerQuantity)} per item
+                      @{formatCurrency(item.price)} per item
                     </div>
                   </div>
                 ))}
