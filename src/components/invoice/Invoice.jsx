@@ -206,7 +206,7 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                         </span>
                       </div>
                       <span className="text-xs sm:text-sm font-semibold text-orange-400 ml-2">
-                        {formatCurrency(item.price)}
+                        {formatCurrency(item.price * item.qty)}
                       </span>
                     </div>
                     <div className="text-[10px] sm:text-xs text-gray-500">
