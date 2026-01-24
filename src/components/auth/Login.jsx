@@ -46,7 +46,7 @@ const Login = () => {
 
   return (
     <div className="w-full">
-      <form action="">
+      <form onSubmit={handleSubmit}>
         <div>
           <label className="block text-white mb-2 mt-3 text-sm font-medium">
             Employee Email
