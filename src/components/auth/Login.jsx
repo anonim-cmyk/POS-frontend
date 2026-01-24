@@ -82,7 +82,6 @@ const Login = () => {
 
         <button
           type="submit"
-          onClick={handleSubmit}
           className="w-full mt-6 px-4 py-3 rounded-lg bg-yellow-400 text-gray-900 font-bold"
         >
           Sign In
