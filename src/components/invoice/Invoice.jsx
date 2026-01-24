@@ -83,9 +83,9 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
     }).format(num);
   };
 
-  const paymentMethod = paymentInfo?.paymentMethod || "CASH";
+  const paymentMethod = paymentInfo?.method || "CASH";
   const paymentStatus =
-    paymentInfo?.status || (paymentMethod === "cash" ? "PAID" : "PENDING");
+    paymentInfo?.status || (method === "cash" ? "PAID" : "PENDING");
   const paymentCode = paymentInfo?.paymentCode || "-";
   const midtrans = paymentInfo?.midtrans || null;
 
