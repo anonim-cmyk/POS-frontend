@@ -24,9 +24,7 @@ const STATUS_CONFIG = {
   },
 };
 
-const OrderList = ({ order }) => {
-  console.log("order: ", order);
-
+const OrderList = ({ order, isLoading }) => {
   const config = STATUS_CONFIG[order.orderStatus];
 
   return (

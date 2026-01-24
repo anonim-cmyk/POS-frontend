@@ -109,9 +109,20 @@ const DishModal = ({ setIsDishesModalOpen, editingDish, setEditingDish }) => {
 
           <button
             type="submit"
-            className="w-full py-2 bg-yellow-400 font-bold rounded hover:bg-yellow-500 transition"
+            disabled={isSubmitting}
+            className={`w-full py-2 rounded font-bold ${
+              isSubmitting
+                ? "bg-yellow-300 text-gray-700 cursor-not-allowed"
+                : "bg-yellow-400 hover:bg-yellow-500"
+            }`}
           >
-            {editingDish ? "Update Dish" : "Add Dish"}
+            {isSubmitting
+              ? editingDish
+                ? "Updating..."
+                : "Saving..."
+              : editingDish
+              ? "Update Dish"
+              : "Save Dish"}
           </button>
         </form>
       </motion.div>

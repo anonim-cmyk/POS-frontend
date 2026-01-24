@@ -20,6 +20,7 @@ export const useDishForm = ({ editingDish, onSuccessClose }) => {
   const [dishData, setDishData] = useState(INITIAL_STATE);
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   /* =====================
       Prefill Edit Mode
@@ -85,10 +86,11 @@ export const useDishForm = ({ editingDish, onSuccessClose }) => {
       Mutation
   ====================== */
   const mutation = useMutation({
-    mutationFn: (payload) =>
-      editingDish?._id
-        ? updateDish({ dishId: editingDish._id, ...payload })
-        : addDish(payload),
+    mutationFn: async (payload) => {
+      return editingDish?._id
+        ? await updateDish({ dishId: editingDish._id, ...payload })
+        : await addDish(payload);
+    },
 
     onSuccess: () => {
       enqueueSnackbar(
@@ -111,18 +113,24 @@ export const useDishForm = ({ editingDish, onSuccessClose }) => {
     e.preventDefault();
     if (!validate()) return;
 
+    setIsSubmitting(true);
+
     try {
       const imageUrl = imageFile ? await uploadImage(imageFile) : preview;
 
-      mutation.mutate({
+      await mutation.mutateAsync({
         name: dishData.name,
         price: Number(dishData.price),
         stock: Number(dishData.stock),
         category: dishData.category,
         imageUrl,
       });
+      resetForm();
+      onSuccessClose();
     } catch {
       enqueueSnackbar("Image upload failed", { variant: "error" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -137,7 +145,7 @@ export const useDishForm = ({ editingDish, onSuccessClose }) => {
     categories,
     preview,
     isLoading,
-    isSubmitting: mutation.isLoading,
+    isSubmitting,
     handleChange,
     handleImageChange,
     handleSubmit,

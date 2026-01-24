@@ -121,9 +121,20 @@ const Modal = ({ setIsTableModalOpen, editingTable, setEditingTable }) => {
 
           <button
             type="submit"
-            className="w-full bg-yellow-400 text-black font-bold py-3 rounded"
+            disabled={mutation.isPending}
+            className={`w-full font-bold py-3 rounded transition ${
+              mutation.isPending
+                ? "bg-yellow-300 text-gray-700 cursor-not-allowed"
+                : "bg-yellow-400 text-black"
+            }`}
           >
-            {editingTable ? "Update Table" : "Add Table"}
+            {mutation.isPending
+              ? editingTable
+                ? "Updating..."
+                : "Saving..."
+              : editingTable
+              ? "Update Table"
+              : "Add Table"}
           </button>
         </form>
       </motion.div>

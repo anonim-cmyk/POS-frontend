@@ -141,7 +141,7 @@ const InsightItem = ({ label, value, description }) => (
 );
 
 const ProgressBar = ({ percentage, colorClass = "bg-orange-500" }) => (
-  <div className="w-full bg-gray-700 rounded-full h-2">
+  <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
     <div
       className={`${colorClass} h-2 rounded-full transition-all`}
       style={{ width: `${percentage}%` }}
@@ -401,27 +401,34 @@ const PaymentsTab = ({ revenueByMethod, grossRevenue }) => {
               PROGRESS_BAR_COLORS[index] || PROGRESS_BAR_COLORS[2];
 
             return (
-              <div key={method._id} className="bg-[#262626] rounded-lg p-5">
+              <div
+                key={method._id}
+                className="bg-[#262626] rounded-lg p-5 overflow-hidden"
+              >
                 <div className="flex justify-between items-center mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{icon}</span>
-                    <div>
-                      <p className="font-medium capitalize">{method._id}</p>
-                      <p className="text-sm text-gray-400">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <span className="text-2xl flex-shrink-0">{icon}</span>
+                    <div className="min-w-0">
+                      <p className="font-medium capitalize truncate">
+                        {method._id}
+                      </p>
+                      <p className="text-sm text-gray-400 truncate">
                         {percentage}% of total payment (gross)
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-lg">
+                  <div className="text-right flex-shrink-0 ml-4">
+                    <p className="font-semibold text-lg whitespace-nowrap">
                       {formatRupiah(method.total)}
                     </p>
                   </div>
                 </div>
-                <ProgressBar
-                  percentage={percentage}
-                  colorClass={progressColor}
-                />
+                <div className="w-full">
+                  <ProgressBar
+                    percentage={percentage}
+                    colorClass={progressColor}
+                  />
+                </div>
               </div>
             );
           })}
