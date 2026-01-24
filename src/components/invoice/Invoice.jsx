@@ -147,7 +147,7 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                 <div className="flex justify-between py-1">
                   <span className="text-gray-400">Invoice ID:</span>
                   <span className="font-semibold text-white font-mono text-xs">
-                    {orderInfo._id?.slice(-8) || "-"}
+                    {orderInfo.orderCode?.slice(-8) || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
