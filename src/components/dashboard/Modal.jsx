@@ -25,16 +25,40 @@ const Modal = ({ setIsTableModalOpen, editingTable, setEditingTable }) => {
   const mutation = useMutation({
     mutationFn: async () => {
       return editingTable
-        ? updatedTable({ tableId: editingTable._id, ...tableData })
+        ? updatedTable({ _id: editingTable._id, ...tableData })
         : addTable(tableData);
     },
+
+    onMutate: async () => {
+      await queryClient.cancelQueries(["tables"]);
+      const previousTables = queryClient.getQueryData(["tables"]);
+
+      if (editingTable) {
+        queryClient.setQueryData(["tables"], (old) => ({
+          ...old,
+          data: old.data.map((t) =>
+            t._id === editingTable._id ? { ...t, ...tableData } : t
+          ),
+        }));
+      }
+
+      return { previousTables };
+    },
+
     onSuccess: (res) => {
       enqueueSnackbar(res.data.message, { variant: "success" });
-      queryClient.invalidateQueries(["tables"]);
       handleClose();
     },
-    onError: (error) => {
-      enqueueSnackbar(error.response.data.message, { variant: "error" });
+
+    onError: (err, _, context) => {
+      queryClient.setQueryData(["tables"], context.previousTables);
+      enqueueSnackbar(err.response.data.message, { variant: "error" });
+    },
+
+    onSettled: () => {
+      if (!editingTable) {
+        queryClient.invalidateQueries(["tables"]);
+      }
     },
   });
 

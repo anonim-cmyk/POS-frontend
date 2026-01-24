@@ -81,8 +81,6 @@ export const useOrder = ({ cartData, customerData, total }) => {
       const order = await createOrder();
       setOrderInfo(order);
 
-      console.log("order: ", order);
-
       const payment =
         paymentMethod === PAYMENT_METHODS.CASH
           ? await handleCashPayment(order.orderCode)
