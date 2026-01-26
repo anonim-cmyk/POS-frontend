@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCheck, FaPrint, FaTimes, FaReceipt } from "react-icons/fa";
+import { formatRupiah } from "../../utils";
 
 const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
   console.log("paymentInfo", paymentInfo);
@@ -73,14 +74,6 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
       WinPrint.print();
       WinPrint.close();
     }, 500);
-  };
-
-  const formatCurrency = (num) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(num);
   };
 
   const paymentMethod = paymentInfo?.method || "CASH";
@@ -208,11 +201,11 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                         </span>
                       </div>
                       <span className="text-xs sm:text-sm font-semibold text-orange-400 ml-2">
-                        {formatCurrency(item.price * item.qty)}
+                        {formatRupiah(item.price * item.qty)}
                       </span>
                     </div>
                     <div className="text-[10px] sm:text-xs text-gray-500">
-                      @{formatCurrency(item.price)} per item
+                      @{formatRupiah(item.price)} per item
                     </div>
                   </div>
                 ))}
@@ -229,19 +222,19 @@ const Invoice = ({ orderInfo, setShowInvoice, paymentInfo }) => {
                 <div className="flex justify-between py-1">
                   <span className="text-gray-400">Subtotal:</span>
                   <span className="font-medium text-white">
-                    {formatCurrency(orderInfo.bills?.total || 0)}
+                    {formatRupiah(orderInfo.bills?.total || 0)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
                   <span className="text-gray-400">Tax (10%):</span>
                   <span className="font-medium text-white">
-                    {formatCurrency(orderInfo.bills?.tax || 0)}
+                    {formatRupiah(orderInfo.bills?.tax || 0)}
                   </span>
                 </div>
                 <div className="pt-3 mt-2 border-t-2 border-gray-700 flex justify-between">
                   <span className="font-bold text-white">Grand Total:</span>
                   <span className="text-base sm:text-lg font-bold text-orange-500">
-                    {formatCurrency(orderInfo.bills?.totalWithTax || 0)}
+                    {formatRupiah(orderInfo.bills?.totalWithTax || 0)}
                   </span>
                 </div>
               </div>

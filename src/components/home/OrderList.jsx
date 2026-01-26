@@ -29,22 +29,22 @@ const OrderList = ({ order, isLoading }) => {
 
   return (
     <div className="flex items-center gap-2 text-white px-8 mt-5">
-      <button className="bg-[#f6b100] py-3 px-5 rounded-lg">
+      <button className="bg-[#f6b100] py-3 px-5 rounded-lg flex-shrink-0">
         {getAvatarName(order.customer.name)}
       </button>
 
-      <div className="flex justify-between w-full items-center">
-        <div>
+      <div className="flex justify-between w-full items-center gap-4">
+        <div className="min-w-[150px]">
           <p>{order.customer.name}</p>
           <p>{order.items.length} items</p>
         </div>
 
-        <h1 className="text-[#f6b100] font-semibold border border-[#f6b100] rounded-lg p-1">
-          Table <FaLongArrowAltRight className="inline ml-2" />
+        <h1 className="text-[#f6b100] font-semibold border border-[#f6b100] rounded-lg p-1 text-center min-w-[100px]">
+          Table <FaLongArrowAltRight className="inline ml-2" />{" "}
           {order.table.tableNo}
         </h1>
 
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end min-w-[150px]">
           <p
             className={`px-2 py-1 rounded-lg flex items-center gap-1 ${config.badge}`}
           >

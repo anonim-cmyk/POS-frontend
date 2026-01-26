@@ -85,7 +85,7 @@ const Bill = () => {
           </h1>
         </div>
         <div className="flex justify-between">
-          <p className="text-xs sm:text-sm text-[#ababab]">Tax (5.25%)</p>
+          <p className="text-xs sm:text-sm text-[#ababab]">Tax (10%)</p>
           <h1 className="text-sm sm:text-base text-[#f5f5f5] font-bold">
             {formatRupiah(tax)}
           </h1>
